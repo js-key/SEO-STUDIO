@@ -12,6 +12,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <!-- Pretendard (원본에서 font-family로 지정되어 있던 한글 폰트) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<!-- Anton: Impact가 없는 기기(모바일 등)용 대체 폰트 -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap" />
 <!-- Lenis 스무스 스크롤 (원본과 같은 1.3.15) -->
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.15/dist/lenis.min.js"></script>
 <!-- three.js -->
@@ -30,7 +34,7 @@
   }
   html, body { background: #000; color: #fff; }
   body { cursor: none; font-family: ui-sans-serif, system-ui, sans-serif; }
-  .font-impact { font-family: Impact, "Arial Black", sans-serif; }
+  .font-impact { font-family: Impact, Anton, 'Arial Black', sans-serif; }
   .font-pretendard { font-family: Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
   [hidden] { display: none !important; }
 
@@ -95,6 +99,11 @@
   #hero.is-open.is-inverted #heroTag { color: #a1a1aa; }
 
   #heroVideo { transition: opacity .5s; }
+  /* 스크롤 렉 방지: 영상이 화면을 다 덮으면 그 아래 레이어는 그리지 않고 애니메이션도 멈춤,
+     밤하늘이 다 덮으면 히어로 전체를 숨김 */
+  #hero.vid-full > :not(#heroVideo):not(#heroDim) { visibility: hidden; }
+  #hero.vid-full *, #hero.covered * { animation-play-state: paused !important; }
+  #hero.covered { visibility: hidden; }
 
   /* 떠다니는 큐브 이미지 */
   .floater { opacity: 0; transform: scale(0); transition: opacity 1s, transform 1s; }
@@ -318,7 +327,7 @@ const ASSETS = {
   ],
 };
 
-const HERO_VIDEO_ID = '2r5DZXI7-yw';
+const HERO_VIDEO_ID = 'lCtXOEoeTW0';
 const WEB3FORMS_KEY = 'b43528e0-cd51-4b96-8dd8-0f081f0c8e18';
 
 const EXPERTISE = [
@@ -328,8 +337,8 @@ const EXPERTISE = [
     description: '영화 INCEPTION의 복잡한 서사를 타임라인 포스터와 다이어그램으로 구조화해 한눈에 읽히도록 시각화합니다.' },
   { tag: 'VIDEO',   title: '영상 제작',
     description: 'AI 단편영화, 커머셜, 뮤직비디오, 다큐멘터리까지 기획부터 편집까지 이야기의 흐름을 영상으로 완성합니다.' },
-  { tag: 'CONTENT', title: '인터랙티브 콘텐츠',
-    description: 'VR·웹 기반 퍼즐 미스터리 STAY처럼, 관객이 직접 참여하며 이야기를 풀어가는 경험을 설계합니다.' },
+  { tag: 'GAME',    title: '게임 · 인터랙티브',
+    description: 'XR 퍼즐 미스터리 STAY처럼, 플레이어가 직접 참여하며 이야기를 풀어가는 경험을 설계합니다.' },
 ];
 
 const SOCIALS = [
@@ -339,10 +348,11 @@ const SOCIALS = [
 
 const PROFILE = [
   { number: '01', title: 'Experience', subtitle: '프로젝트 경험', content: {
+      2026: ['이매지너스(주식회사) 인턴'],
       2025: ['PANOPTICON: ILLUDION OF AUTONOMY', '국민대학교 조형전 Nomi 전시', '2025 AI디자인학과 AI-WEEK 최우수상'],
       2024: ['화성특례시 AI·CF 콘텐츠 공모전 특상', '2024 AI디자인학과 AI-WEEK 최우수상'],
   } },
-  { number: '02', title: 'Certificate', subtitle: '자격증/수료증', content: ['Microsoft AI-900 자격증', '구글 AI Essential 수료증', 'TOEFL 88'] },
+  { number: '02', title: 'Certificate', subtitle: '자격증/수료증', content: ['Microsoft AI-900 자격증', '구글 AI Essential 수료증'] },
   { number: '03', title: 'Position', subtitle: '직급 경험', content: [
       '국민대학교 AI디자인학과 2025 학생회 프롬PROM 복지국원',
       '국민대학교 AI디자인학과 2024 학생회 올리∀i 기획부원',
@@ -410,13 +420,20 @@ const VISUAL_CARDS = [
   { id: 2, title: '31 프로젝트',     category: 'ARTWORK',       description: '키워드 비주얼 디자인',               image: ARTWORK[0].image, open: 'artwork' },
 ];
 
-/* CONTENT 카테고리 — 항목을 추가하면 카드가 자동으로 늘어납니다 */
-const CONTENTS = [
-  { id: 1, title: 'STAY', category: 'INTERACTIVE CONTENT', year: '2026', type: 'Web · VR',
-    description: '눈을 떠보니 좁은 방 안에 갇혀있다. 여기서 나갈 수 있을까?',
-    genre: '퍼즐, 미스테리, 스토리, VR',
-    role: 'Concept, Visual Design, Interaction', tools: 'Three.js, WebXR',
-    image: STAY_COVER, url: 'https://exquisite-chimera-fce7b3.netlify.app' },
+/* GAME 카테고리 — XR / PC 로 나뉨. 각 배열에 항목을 추가하면 카드가 자동으로 늘어납니다 */
+const GAMES = {
+  XR: [
+    { id: 1, title: 'STAY', category: 'XR GAME', year: '2026', type: 'Web · VR',
+      description: '눈을 떠보니 좁은 방 안에 갇혀있다. 여기서 나갈 수 있을까?',
+      genre: '퍼즐, 미스테리, 스토리, VR',
+      role: 'Concept, Visual Design, Interaction', tools: 'Three.js, WebXR',
+      image: STAY_COVER, url: 'https://exquisite-chimera-fce7b3.netlify.app' },
+  ],
+  PC: [],
+};
+const GAME_SECTIONS = [
+  { key: 'XR', title: 'XR', subtitle: 'VR · AR · WebXR 게임' },
+  { key: 'PC', title: 'PC', subtitle: 'PC 게임' },
 ];
 
 const VIDEOS = [
@@ -440,7 +457,7 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const html = (s) => { const t = document.createElement('template'); t.innerHTML = s.trim(); return t.content.firstElementChild; };
 const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad2 = (n) => String(n).padStart(2, '0');
-const IMPACT = `font-family:Impact,"Arial Black",sans-serif`;
+const IMPACT = `font-family:Impact,Anton,'Arial Black',sans-serif`;  // style="..." 안에 들어가므로 큰따옴표 금지
 
 /* lucide 아이콘 (원본에서 쓰던 것만) */
 const ICONS = {
@@ -503,7 +520,7 @@ const state = {
   inverted: false,   // 타이틀 클릭으로 흑/백 반전
   progress: 0,       // 0~1, 히어로 아래 300vh 스크롤 진행도
   profile: false,    // 프로필 오버레이
-  category: null,    // 'visual' | 'video'
+  category: null,    // 'visual' | 'video' | 'game'
   cameBack: false,   // 카테고리에서 돌아온 상태 (큐브 위치로 돌아오되 페이지 전체는 그대로 유지)
 };
 
@@ -518,7 +535,7 @@ const scrollTop = () => lenis.scrollTo(0, { immediate: true, force: true });
 lenis.on('scroll', ({ scroll }) => {
   if (state.opened && !state.profile && !state.category) {
     state.progress = Math.min(scroll / (window.innerHeight * 3), 1);
-    applyProgress();
+    applyProgress(false);
   }
 });
 
@@ -547,25 +564,31 @@ function render() {
   applyProgress();
 }
 
-function applyProgress() {
+const P = {};   // applyProgress에서 쓰는 요소 캐시 (스크롤마다 DOM 검색하지 않도록)
+let lastP = -1;
+function applyProgress(force = true) {
   const p = state.progress;
-  $('#heroDim').style.opacity = state.progress;
-  $('#heroVideo').style.opacity = state.progress > .3 ? Math.min((state.progress - .3) / .2, 1) : 0;
+  if (!force && p === lastP) return;   // 진행도 변화 없으면 (밤하늘 영역 스크롤 중) 아무것도 안 함
+  lastP = p;
+  if (!P.dim) ['heroDim', 'heroVideo', 'heroTitleInner', 'heroTag', 'introSection', 'sky', 'introContent', 'cubeSection', 'tail']
+    .forEach(id => P[id === 'heroDim' ? 'dim' : id] = document.getElementById(id));
+  P.dim.style.opacity = p;
+  P.heroVideo.style.opacity = p > .3 ? Math.min((p - .3) / .2, 1) : 0;
   syncHeroVideo();
-  const fade = state.progress > .2 ? Math.max(1 - (state.progress - .2) / .3, 0) : 1;
-  $('#heroTitleInner').style.opacity = fade;
-  $('#heroTag').style.opacity = fade;
+  const fade = p > .2 ? Math.max(1 - (p - .2) / .3, 0) : 1;
+  P.heroTitleInner.style.opacity = fade;
+  P.heroTag.style.opacity = fade;
+  hero.classList.toggle('vid-full', p >= .5 && state.opened);
+  hero.classList.toggle('covered', p >= 1 && state.opened && !state.profile);
 
-  const intro = $('#introSection');
-  if (!intro.dataset.leaving) intro.style.opacity = '';
-  $('#sky').style.opacity = p > .85 && p < 1 ? (p - .85) / .15 : p >= 1 ? 1 : 0;
-  $('#introContent').classList.toggle('on', p >= 1);
+  if (!P.introSection.dataset.leaving) P.introSection.style.opacity = '';
+  P.sky.style.opacity = p > .85 && p < 1 ? (p - .85) / .15 : p >= 1 ? 1 : 0;
+  P.introContent.classList.toggle('on', p >= 1);
 
-  $('#cubeSection').classList.toggle('active', p >= 1);
-  const tail = $('#tail');
+  P.cubeSection.classList.toggle('active', p >= 1);
   const showTail = p >= 1;
-  if (showTail && tail.hidden) { fadeIn(tail, 500); }
-  tail.hidden = !showTail;
+  if (showTail && P.tail.hidden) { fadeIn(P.tail, 500); }
+  P.tail.hidden = !showTail;
 }
 
 /* =============================================================
@@ -593,7 +616,7 @@ function updateFloaterTargets() {
   });
 }
 
-/* ---------- 히어로 배경 영상 (https://youtu.be/2r5DZXI7-yw) ----------
+/* ---------- 히어로 배경 영상 (https://youtu.be/lCtXOEoeTW0) ----------
    - 인트로를 열 때 미리 불러와 버퍼링
    - 스크롤해서 영상이 보이는 순간(진행도 0.3↑) 처음부터 자동 재생, 다시 올라가면 일시정지
    - 브라우저 자동재생 정책상 음소거 상태로 재생됩니다
@@ -626,7 +649,7 @@ function loadHeroVideo() {
 }
 function syncHeroVideo(force = false) {
   if (!yt.ready) return;
-  const show = state.opened && state.progress > .3 && !state.profile && !state.category;
+  const show = state.opened && state.progress > .3 && state.progress < 1 && !state.profile && !state.category;
   if (!force && show === yt.playing) return;
   yt.playing = show;
   if (show) { if (!yt.started) { yt.player.seekTo(0, true); yt.started = true; } yt.player.playVideo(); }
@@ -941,21 +964,49 @@ function renderGallery(kind) {
   show();
 }
 
-/* ---- CONTENT (웹/인터랙티브 작업 — 사이트로 연결) ---- */
-function renderContent() {
+/* ---- GAME: XR / PC 선택 화면 ---- */
+function renderGame() {
   setPage(`
     <div class="min-h-screen bg-black text-white">
-      ${topBar('CONTENT')}
+      ${topBar('GAME')}
+      <div class="h-screen flex flex-col md:flex-row pt-24 md:pt-0">
+        ${GAME_SECTIONS.map((g, i) => `
+          <div class="flex-1 relative group cursor-pointer overflow-hidden flex items-center justify-center border-zinc-800 ${i ? 'border-t md:border-t-0 md:border-l' : ''}" data-game="${g.key}" data-a="up" data-x="50" data-t="800" data-d="${200 + i * 200}">
+            <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-400"></div>
+            <div class="relative text-center px-4">
+              <h2 class="text-7xl md:text-9xl tracking-wider text-white group-hover:text-black transition-colors duration-400" style="${IMPACT}">${esc(g.title)}</h2>
+              <p class="mt-3 text-sm md:text-base tracking-wide text-zinc-400 group-hover:text-zinc-600 transition-colors duration-400 font-pretendard">${esc(g.subtitle)}</p>
+              <p class="mt-6 text-xs tracking-[0.3em] text-zinc-600 group-hover:text-zinc-500 transition-colors duration-400">${pad2(GAMES[g.key].length)} WORKS</p>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`);
+  pageEl.onclick = (e) => {
+    if (e.target.closest('[data-action="page-back"]')) return backFromCategory();
+    const g = e.target.closest('[data-game]'); if (g) renderGameList(g.dataset.game);
+  };
+}
+
+/* ---- GAME 목록 (XR 또는 PC) — 사이트로 연결 ---- */
+function renderGameList(kind) {
+  const items = GAMES[kind];
+  setPage(`
+    <div class="min-h-screen bg-black text-white">
+      ${topBar(`GAME · ${kind}`)}
       <div class="pt-32 pb-20 px-4 md:px-8"><div class="max-w-7xl mx-auto">
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          ${CONTENTS.map((c, i) => card(c.image, 'aspect-video', `
+        ${items.length ? `<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          ${items.map((c, i) => card(c.image, 'aspect-video', `
             <div class="absolute top-4 right-4 px-3 py-1 bg-black/80 text-white text-xs backdrop-blur-sm">${esc(c.type)}</div>
             <div class="absolute bottom-0 left-0 right-0 p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
               <p class="text-xs tracking-widest text-zinc-400 mb-2">${esc(c.category)}</p>
               <h3 class="text-2xl md:text-3xl mb-2 tracking-tight" style="${IMPACT}">${esc(c.title)}</h3>
               <p class="text-sm text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 line-clamp-2">${esc(c.description)}</p>
             </div>`, i, `data-content="${i}"`)).join('')}
-        </div>
+        </div>` : `
+        <div class="min-h-[50vh] flex flex-col items-center justify-center text-center" data-a="fade" data-t="800" data-d="300">
+          <p class="text-5xl md:text-7xl tracking-wider text-zinc-700" style="${IMPACT}">COMING SOON</p>
+          <p class="mt-4 text-sm text-zinc-500 font-pretendard">준비 중인 작업입니다.</p>
+        </div>`}
       </div></div>
     </div>`);
 
@@ -1015,8 +1066,8 @@ function renderContent() {
   }
 
   pageEl.onclick = (e) => {
-    if (e.target.closest('[data-action="page-back"]')) return backFromCategory();
-    const c = e.target.closest('[data-content]'); if (c) openModal(CONTENTS[+c.dataset.content]);
+    if (e.target.closest('[data-action="page-back"]')) return renderGame();
+    const c = e.target.closest('[data-content]'); if (c) openModal(items[+c.dataset.content]);
   };
 }
 
@@ -1102,7 +1153,7 @@ function selectCategory(cat) {
   scrollTop();
   render();
   pageEl.hidden = false;
-  ({ visual: renderVisual, video: renderVideo, content: renderContent })[cat]();
+  ({ visual: renderVisual, video: renderVideo, game: renderGame })[cat]();
 }
 function backFromCategory() {
   pageCleanup?.(); pageCleanup = null;
@@ -1145,7 +1196,7 @@ render();
 
 
 <!-- ============================================================ -->
-<!--   THREE.JS — 밤하늘 별 + 카테고리 큐브 (VIDEO / VISUAL / CONTENT)   -->
+<!--   THREE.JS — 밤하늘 별 + 카테고리 큐브 (VIDEO / VISUAL / GAME)   -->
 <!-- ============================================================ -->
 <script type="module">
 import * as THREE from 'three';
@@ -1161,6 +1212,8 @@ const clamp01 = (v) => Math.min(1, Math.max(0, v));
 ============================================================== */
 const sky = document.getElementById('sky');
 const starCanvas = document.getElementById('starCanvas');
+let skyVisible = false;
+new IntersectionObserver(([en]) => { skyVisible = en.isIntersecting; }).observe(sky);
 const starRenderer = new THREE.WebGLRenderer({ canvas: starCanvas, antialias: false, alpha: false });
 starRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 starRenderer.setClearColor(0x000000, 1);
@@ -1316,7 +1369,7 @@ function labelFontSize(c) {
   if (LABEL_FS) return LABEL_FS;
   let fs = 60 * K;
   const longest = faces.filter(f => f.label).map(f => f.label).sort((a, b) => b.length - a.length)[0];
-  c.save(); c.font = `${fs}px Impact, "Arial Black", sans-serif`;
+  c.save(); c.font = `${fs}px Impact, Anton, 'Arial Black', sans-serif`;
   if ('letterSpacing' in c) c.letterSpacing = `${.15 * fs}px`;
   const w = c.measureText(longest).width; c.restore();
   if (w > TEX * .74) fs *= (TEX * .74) / w;
@@ -1357,7 +1410,7 @@ class Face {
     }
     if (this.label) {
       const fs = labelFontSize(c);
-      c.font = `${fs}px Impact, "Arial Black", sans-serif`;
+      c.font = `${fs}px Impact, Anton, 'Arial Black', sans-serif`;
       c.textAlign = 'center'; c.textBaseline = 'middle';
       const ls = 'letterSpacing' in c;
       if (ls) c.letterSpacing = `${.15 * fs}px`;
@@ -1374,12 +1427,13 @@ class Face {
 const faces = [
   new Face({ label: 'VISUAL',  key: 'right', seed: 11 }),   // +x
   new Face({ seed: 23 }),                                   // -x
-  new Face({ label: 'CONTENT', key: 'top', seed: 37 }),     // +y
+  new Face({ label: 'GAME',    key: 'top', seed: 37 }),     // +y
   new Face({ seed: 41 }),                                   // -y
   new Face({ label: 'VIDEO',   key: 'front', seed: 53 }),   // +z
   new Face({ seed: 67 }),                                   // -z
 ];
-const ROUTE = { front: 'video', right: 'visual', top: 'content' };
+const ROUTE = { front: 'video', right: 'visual', top: 'game' };
+document.fonts?.load('60px Anton').then(() => { LABEL_FS = null; faces.forEach(f => f.dirty = true); }).catch(() => {});
 
 // 뒤쪽 모서리: 안쪽에서 보이는 면(BackSide)에 흐린 스케치 테두리만 → 레퍼런스의 회색 뒷선
 function backTexture(seed) {
@@ -1528,7 +1582,7 @@ renderer.setAnimationLoop(() => {
   if (document.hidden) return;
 
   /* 별 */
-  if (sky.offsetParent !== null && getComputedStyle(sky).opacity !== '0') {
+  if (skyVisible && sky.style.opacity !== '0') {
     const r = sky.getBoundingClientRect(), vh = window.innerHeight;
     const scrolled = -r.top;                                      // 밤하늘 영역 안으로 내려온 거리
     starMat.uniforms.uReveal.value = clamp01((scrolled + vh * .15) / (vh * 1.9)); // 소개 문구에서 시작 → 큐브 지나며 가득
