@@ -621,18 +621,21 @@ if(window.THREE){
     window.addEventListener('pointerdown', e=>{ const tg = e.target; if(!detailOpen && orbClick(e)) return; const inList = tg.closest && tg.closest('#strip, [data-view="list"]') && !tg.closest('button, a, .wcard');
       if(detailOpen || !(inList || tg === cv || tg === app || (tg.classList && (tg.classList.contains('view') || tg.classList.contains('shade'))))) return;
       ndc.set(e.clientX/window.innerWidth*2 - 1, -(e.clientY/window.innerHeight)*2 + 1); ray.setFromCamera(ndc, cam); const hit = ray.intersectObjects(CURT, false)[0];
-      if(!hit){ const o = ray.ray.origin, d = ray.ray.direction, zt = cam.position.z - 64; if(d.z < -.01 && !REDUCE){ const k = (zt - o.z)/d.z; spawnStar(new V3(o.x + d.x*k, o.y + d.y*k, zt)); } return; }
+      if(!hit){ const o = ray.ray.origin, d = ray.ray.direction, zt = cam.position.z - 64; if(d.z < -.01 && !REDUCE){ const k = (zt - o.z)/d.z; spawnStar(new V3(o.x + d.x*k + (Math.random() - .5)*16, o.y + d.y*k + (Math.random() - .5)*9, zt)); } return; }
       const p = hit.point, zw = travel + NEAR - p.z; glows.push({x:p.x, zw, t0:nowT}); if(glows.length > 6) glows.shift();
       Sound.glow(Math.max(-1, Math.min(1, p.x/14)), Math.floor(Math.abs(p.x*.7 + zw*.4))); });
     const W = new Array(CATS.length + 1).fill(0); W[0] = 1;
     const valley = x=>.25 + .75*ease((Math.abs(x) - 1.2)/5);
     function hf(x, z, t){ let h = 0; if(W[0] > .005) h += W[0]*catH(0, x, z, t)*valley(x); for(let c=0;c<CATS.length;c++){ const w = W[c+1]; if(w > .005) h += w*catH(CATS[c].land, x, z, t)*(.35 + .65*valley(x)); } return h + Math.abs(x)*.03; }
     /* shooting star */
-    const ssPos = new Float32Array(6), ssG = new THREE.BufferGeometry(); ssG.setAttribute('position', new THREE.BufferAttribute(ssPos, 3));
-    const ssMat = new THREE.LineBasicMaterial({color:C.ink.clone(), transparent:true, opacity:0, fog:false}); const ssLine = new THREE.Line(ssG, ssMat); ssLine.frustumCulled = false; scene.add(ssLine);
-    const ssHead = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3)), new THREE.PointsMaterial({color:C.ink.clone(), size:2.6, sizeAttenuation:false, transparent:true, opacity:0, fog:false})); ssHead.frustumCulled = false; scene.add(ssHead);
-    const SS = {on:false, t:0, next:6 + Math.random()*2, p0:new V3(), d:new V3(), dur:1.2, sp:30};
-    function spawnStar(at){ const side = Math.random() < .5 ? -1 : 1; if(at) SS.p0.copy(at); else SS.p0.set(cam.position.x + (Math.random()*50 - 25), 14 + Math.random()*12, -62 - Math.random()*10); SS.d.set(-side*(.6 + Math.random()*.4), -(.35 + Math.random()*.3), 0).normalize(); SS.dur = 1 + Math.random()*.6; SS.on = true; SS.t = 0; Sound.whoosh(Math.max(-1, Math.min(1, SS.p0.x/30))); }
+    const TRN = 30, ssPos = new Float32Array(TRN*3), ssA = new Float32Array(TRN), ssS = new Float32Array(TRN), ssG = new THREE.BufferGeometry();
+    ssG.setAttribute('position', new THREE.BufferAttribute(ssPos, 3)); ssG.setAttribute('a', new THREE.BufferAttribute(ssA, 1)); ssG.setAttribute('s', new THREE.BufferAttribute(ssS, 1));
+    const ssMat = new THREE.ShaderMaterial({transparent:true, depthWrite:false, uniforms:{uC:{value:C.ink.clone()}, uPx:{value:Math.min(window.devicePixelRatio || 1, 2)}},
+      vertexShader:'attribute float a; attribute float s; uniform float uPx; varying float vA; void main(){ vA = a; gl_PointSize = s*uPx; gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1.); }',
+      fragmentShader:'uniform vec3 uC; varying float vA; void main(){ float d = length(gl_PointCoord - .5); if(d > .5) discard; gl_FragColor = vec4(uC, vA*smoothstep(.5, .36, d)); }'});
+    const ssPts = new THREE.Points(ssG, ssMat); ssPts.frustumCulled = false; scene.add(ssPts);
+    const SS = {on:false, t:0, p0:new V3(), d:new V3(), dur:1.5, sp:22};
+    function spawnStar(at){ const side = Math.random() < .5 ? -1 : 1; if(at) SS.p0.copy(at); else SS.p0.set(cam.position.x + (Math.random()*50 - 25), 14 + Math.random()*12, -62 - Math.random()*10); SS.d.set(-side*(.6 + Math.random()*.4), -(.35 + Math.random()*.3), 0).normalize(); SS.dur = 1.3 + Math.random()*.6; SS.on = true; SS.t = 0; Sound.whoosh(Math.max(-1, Math.min(1, SS.p0.x/30))); }
     let travel = 0, vel = .9, mx = 0, my = 0, camY = 2.5, lookY = 1.2;
     window.addEventListener('pointermove', e=>{ mx = e.clientX/window.innerWidth*2 - 1; my = e.clientY/window.innerHeight*2 - 1; });
     let sw = 0, sh = 0;
@@ -659,8 +662,11 @@ if(window.THREE){
       cam.position.x += (mx*.6 - cam.position.x)*.03; cam.position.y = camY - my*.15; cam.position.z = 0;
       cam.lookAt(cam.position.x*.4, lookY, -14); cam.rotation.z += -cam.position.x*.035;
       starsP.position.x = -cam.position.x*.2;
-      if(SS.on){ SS.t += dt; const k = SS.t/SS.dur; if(k >= 1){ SS.on = false; SS.next = 6 + Math.random()*2; ssMat.opacity = 0; ssHead.material.opacity = 0; }
-        else { const head = SS.p0.clone().addScaledVector(SS.d, SS.sp*SS.t), tail = head.clone().addScaledVector(SS.d, -Math.min(SS.sp*SS.t, 9)*(1 - k*.5)); ssPos.set([tail.x, tail.y, tail.z, head.x, head.y, head.z]); ssG.attributes.position.needsUpdate = true; const a = Math.sin(Math.PI*k); ssMat.opacity = a*.9; ssHead.geometry.attributes.position.array.set([head.x, head.y, head.z]); ssHead.geometry.attributes.position.needsUpdate = true; ssHead.material.opacity = a; } }
+      if(SS.on){ SS.t += dt; const k = SS.t/SS.dur; if(k >= 1){ SS.on = false; ssA.fill(0); ssG.attributes.a.needsUpdate = true; }
+        else { const env = Math.min(1, k*6)*Math.min(1, (1 - k)*3);
+          for(let i = 0; i < TRN; i++){ const tt = SS.t - i*.03, f = i/TRN; const x = SS.p0.x + SS.d.x*SS.sp*tt, y = SS.p0.y + SS.d.y*SS.sp*tt;
+            ssPos[i*3] = x; ssPos[i*3 + 1] = y; ssPos[i*3 + 2] = SS.p0.z; ssA[i] = tt < 0 ? 0 : env*(i === 0 ? 1 : .75*Math.pow(1 - f, 1.6)); ssS[i] = i === 0 ? 8 : 1.2 + 5*Math.pow(1 - f, 1.2); }
+          ssG.attributes.position.needsUpdate = true; ssG.attributes.a.needsUpdate = true; ssG.attributes.s.needsUpdate = true; } }
       r.render(scene, cam); orbTick(t, dt, sw, sh);
     });
   }
