@@ -193,6 +193,9 @@ button{font:inherit;color:inherit}
 .detail.wide{grid-template-columns:minmax(0,1fr);align-content:start;padding-top:clamp(76px,10vh,100px)}
 .detail.wide .dimg img,.detail.wide .dimg video{width:100%;max-height:60vh;object-fit:contain}
 .detail.wide .info{max-width:760px}
+[hidden]{display:none!important}
+#dDesc{white-space:pre-line}
+#dCat[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -339,10 +342,10 @@ const WORKS = {
   ],
   '3D': [
     {g:'ENVIRONMENT', ar:'21/9', fit:'cover', items:[
-      {t:'HILLS', k:'3D 환경 · 파노라마 영상', y:'2026', d:'LED 터널 벽면에 상영하기 위해 제작한 5040×1080 파노라마 3D 풍경. 노을빛 속 풀숲과 꽃, 호수와 폭포, 버드나무가 바람에 흔들리는 장면을 Blender에서 만들고 10초 루프 영상으로 렌더링했다.', role:'3D Modeling, Environment, Lighting, Rendering', tools:'Blender, Meshy AI', img:'w/hills.jpg', th:'w/hills_t.jpg', video:'w/hills.mp4', wide:true, proc:[
-        {t:'LOOKDEV', k:'Blender · 노을 조명과 안개', y:'2026', d:'노을빛 조명, 안개 볼륨, 구름과 해를 배치하며 전체 분위기를 잡은 단계.', img:'w/hills_p1.jpg', ar:'16/10'},
-        {t:'SCULPT · GRASS', k:'Blender · 지형 스컬핑', y:'2026', d:'언덕 지형을 스컬핑하고 털(Fur) 시스템으로 풀숲을 덮어 질감을 만든 단계.', img:'w/hills_p2.jpg', ar:'16/10'},
-        {t:'LAYOUT', k:'Blender · 형태 검토', y:'2026', d:'호수, 폭포, 지형의 배치와 형태를 무채색으로 검토한 단계.', img:'w/hills_p3.jpg', ar:'16/10'}
+      {t:'HILLS', k:'3D 환경 · 파노라마 영상', y:'2026', d:'LED 터널 벽면에 상영하기 위해 제작한 5040x1080 크기의 3D 풍경.\n노을빛 속 털 질감의 풀숲과 꽃, 호수와 폭포, 버드나무와 저 멀리 날아가는 새의 장면을 Blender로 제작하였습니다.', tools:'Blender, Meshy AI, Claude', img:'w/hills.jpg', th:'w/hills_t.jpg', video:'w/hills.mp4', wide:true, proc:[
+        {t:'LAYOUT', k:'Blender · 형태 검토', y:'2026', d:'', img:'w/hills_p3.jpg', ar:'16/10'},
+        {t:'SCULPT · GRASS', k:'Blender · 지형 스컬핑', y:'2026', d:'', img:'w/hills_p2.jpg', ar:'16/10'},
+        {t:'LOOKDEV', k:'Blender · 노을 조명과 안개', y:'2026', d:'', img:'w/hills_p1.jpg', ar:'16/10'}
       ]}
     ]}
   ]
@@ -474,14 +477,14 @@ function openList(i){ listCat = i; const c = CATS[i]; listName.textContent = c.i
 /* detail */
 const detail = document.getElementById('detail'), dImg = document.getElementById('dImg');
 function openDetail(idx){ cur = (idx + flat.length) % flat.length; const {w, g} = flat[cur];
-  document.getElementById('dCat').textContent = CATS[listCat].id + ' · ' + g; document.getElementById('dTitle').textContent = w.t;
+  const dc = document.getElementById('dCat'); dc.textContent = CATS[listCat].id + ' · ' + g; dc.hidden = CATS[listCat].id === 'VIDEO'; document.getElementById('dTitle').textContent = w.t;
   document.getElementById('dMeta').textContent = [w.k, w.y, w.dur].filter(Boolean).join(' · ');
   document.getElementById('dDesc').textContent = w.d || '';
-  const rows = [['ROLE', w.role], ['TOOLS', w.tools], ['GENRE', w.genre]].filter(r=>r[1]);
+  const rows = [['TOOLS', w.tools], ['GENRE', w.genre]].filter(r=>r[1]);
   document.getElementById('dInfo').innerHTML = rows.map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join(''); document.getElementById('dInfo').hidden = !rows.length;
   const a = document.getElementById('dLink'); if(w.link){ a.href = w.link; a.querySelector('span').textContent = w.linkLabel; a.hidden = false; } else a.hidden = true;
   document.getElementById('dCount').textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(flat.length).padStart(2, '0');
-  const pr = document.getElementById('dProc'); if(w.proc && w.proc.length){ pr.innerHTML = '<h4>PROCESS<span>' + w.proc.length + '</span></h4><div class="pgrid">' + w.proc.map(q=>`<figure><img src="${q.img}" alt="${q.t}" loading="lazy" style="aspect-ratio:${q.ar || '4/5'}"><figcaption><b>${q.t}</b><span>${q.k} · ${q.y}</span><p>${q.d}</p></figcaption></figure>`).join('') + '</div>'; pr.hidden = false; } else { pr.innerHTML = ''; pr.hidden = true; }
+  const pr = document.getElementById('dProc'); if(w.proc && w.proc.length){ pr.innerHTML = '<h4>PROCESS<span>' + w.proc.length + '</span></h4><div class="pgrid">' + w.proc.map(q=>`<figure><img src="${q.img}" alt="${q.t}" loading="lazy" style="aspect-ratio:${q.ar || '4/5'}"><figcaption><b>${q.t}</b><span>${q.k} · ${q.y}</span>${q.d ? `<p>${q.d}</p>` : ''}</figcaption></figure>`).join('') + '</div>'; pr.hidden = false; } else { pr.innerHTML = ''; pr.hidden = true; }
   const dv = document.getElementById('dVid'); detail.classList.toggle('wide', !!w.wide);
   if(w.video){ dImg.hidden = true; dv.hidden = false; dv.poster = w.img; if(dv.getAttribute('src') !== w.video){ dv.src = w.video; } dv.play().catch(()=>{}); } else { dv.pause(); dv.hidden = true; dImg.hidden = false; }
   dImg.src = w.img; dImg.alt = w.t; detail.scrollTop = 0;
