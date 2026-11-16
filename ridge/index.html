@@ -55,7 +55,7 @@ button{font:inherit;color:inherit}
 
 /* home */
 .ttl{position:absolute;left:var(--gl);top:clamp(70px,13vh,150px)}
-.ttl .nm{display:block;font-family:var(--f-display);font-weight:500;font-size:clamp(12px,1.25vw,17px);letter-spacing:.55em;color:var(--mute);margin-bottom:clamp(6px,1.2vh,14px);padding-left:.3em}
+.ttl .nm{display:block;font-family:var(--f-display);font-weight:700;font-size:clamp(16px,1.9vw,30px);letter-spacing:.42em;color:#D6D6D1;margin-bottom:clamp(6px,1.2vh,14px);padding-left:.3em}
 .ttl h1{margin:0;font-family:var(--f-title);font-weight:400;font-size:clamp(72px,18.5vw,340px);line-height:.88;white-space:nowrap;letter-spacing:-.025em}
 .menu{position:absolute;left:var(--gl);bottom:clamp(60px,15vh,170px);display:flex;flex-direction:column;gap:clamp(4px,1.1vh,12px)}
 .menu button{all:unset;cursor:pointer;font-family:var(--f-title);font-weight:400;font-size:clamp(22px,2.5vw,38px);letter-spacing:.08em;color:var(--dim);transition:color .3s,transform .35s cubic-bezier(.2,.7,.2,1)}
@@ -67,7 +67,7 @@ button{font:inherit;color:inherit}
 .vh span{display:block;font-family:var(--f-kr);font-size:clamp(13px,1.15vw,15px);color:var(--mute);margin-top:12px}
 
 /* works · category row */
-.cats{position:absolute;left:var(--gl);right:var(--gr);bottom:clamp(48px,11vh,120px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,2vw,32px)}
+.cats{position:absolute;left:var(--gl);right:var(--gr);bottom:clamp(48px,11vh,120px);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(12px,1.8vw,28px)}
 .cat{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:10px;padding-top:16px;border-top:1px solid var(--rule);min-width:0;transition:border-color .3s,opacity .3s}
 .cat canvas{width:100%;aspect-ratio:16/9;height:auto;display:block}
 .cat i{font-style:normal;font-family:var(--f-display);font-weight:600;font-size:12px;letter-spacing:.3em;color:var(--dim);transition:color .3s}
@@ -177,6 +177,17 @@ button{font:inherit;color:inherit}
 .dlink:hover,.dlink:focus-visible{border-color:var(--paper);background:rgba(240,240,236,.06);outline:none}
 .dlink[hidden]{display:none}
 @media (max-width:760px){.detail{padding-top:76px}.dimg img{max-height:56vh}}
+.dproc{grid-column:1/-1;padding-top:28px;border-top:1px solid var(--rule)}
+.dproc[hidden]{display:none}
+.dproc h4{margin:0 0 18px;display:flex;gap:12px;align-items:baseline;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.24em;color:var(--mute)}
+.dproc h4 span{color:var(--dim)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:clamp(18px,2vw,30px)}
+.pgrid figure{margin:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pgrid img{width:100%;aspect-ratio:4/5;object-fit:contain;background:#141416;border:1px solid var(--rule);display:block}
+.pgrid figcaption{display:flex;flex-direction:column;gap:4px}
+.pgrid b{font-family:var(--f-display);font-weight:600;font-size:15px}
+.pgrid span{font-size:12.5px;color:var(--mute)}
+.pgrid p{margin:4px 0 0;font-size:13.5px;line-height:1.7;color:#BDBDB8}
 </style>
 </head>
 <body>
@@ -245,6 +256,7 @@ button{font:inherit;color:inherit}
     <div class="dtop"><span id="dCount"></span><div class="dnav"><button type="button" id="dPrev" aria-label="이전 작업"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 6H2M6.5 1.5 2 6l4.5 4.5"/></svg></button><button type="button" id="dNext" aria-label="다음 작업"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 6h15M11.5 1.5 16 6l-4.5 4.5"/></svg></button><button type="button" id="dClose" aria-label="닫기"><svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 2l12 12M14 2 2 14"/></svg></button></div></div>
     <div class="dimg"><img id="dImg" alt=""></div>
     <div class="info"><span class="eb" id="dCat"></span><h3 id="dTitle"></h3><span class="meta" id="dMeta"></span><p id="dDesc"></p><dl id="dInfo"></dl><a id="dLink" class="dlink" href="#" target="_blank" rel="noopener" hidden><span></span> ↗</a></div>
+    <div class="dproc" id="dProc" hidden></div>
   </div>
 </main>
 
@@ -285,17 +297,14 @@ const frac = v=>v - Math.floor(v);
 const hsh = n=>frac(Math.sin(n*127.1 + 3.7)*43758.5453);
 /* ---------- content ---------- */
 const CATS = [
-  {id:'VISUAL', land:2}, {id:'INTERACTION', land:3}, {id:'GAME', land:1}, {id:'3D', land:0}
+  {id:'VISUAL', land:2}, {id:'VIDEO', land:4}, {id:'INTERACTION', land:3}, {id:'GAME', land:1}, {id:'3D', land:0}
 ];
 const IM = h=>'w/' + h.slice(0, 10) + '.jpg', TH = h=>'w/' + h.slice(0, 10) + '_t.jpg';
 const P = (t, k, y, d, role, tools, h)=>({t, k, y, d, role, tools, img:IM(h), th:TH(h)});
 const WORKS = {
   VISUAL: [
-    {g:'POSTER · INFOGRAPHIC', ar:'4/5', fit:'contain', items:[
-      P('MAZE BEYOND REALITY', '영화 포스터', '2024', '영화 INCEPTION의 타임라인 포스터이다. 줄거리와 영화 전반의 분위기를 반영하여 영화의 시나리오 플로우를 계단식의 그래픽을 활용해 영화 속 상징적인 시각 요소들과 AI 그래픽을 활용하여 영화 타임라인 포스터를 제작하였다.', 'Art Direction, Visual Design, AI Graphic', 'Midjourney, DALL·E, Photoshop, Illustrator', 'c6b27fbdb822adfdf58a8ee9a21f7aa17a4f3eae'),
-      P('INCEPTION LAYERS', '영화 인포그래픽', '2024', '영화 INCEPTION의 복잡한 꿈의 레이어 구조를 시각화한 타임라인 인포그래픽. REALITY부터 LIMBO까지 5개 층위의 시간 흐름과 주요 사건들을 미니멀한 다이어그램으로 정리하여 영화의 서사 구조를 한눈에 파악할 수 있도록 디자인했다.', 'Infographic Design, Data Visualization', 'Illustrator, Photoshop', 'f5dafb6f39674b6ad4a08779bb70dab2ae289d60'),
-      P('DREAM ARCHITECTURE', '영화 인포그래픽', '2024', 'INCEPTION의 꿈 속 꿈 구조를 3D 등축투영법으로 시각화한 다이어그램. 각 레이어의 시간 배율과 주요 캐릭터, 킥(Kick) 이벤트, 그리고 상징적 아이콘들을 입체적으로 배치하여 영화의 복잡한 서사를 직관적으로 이해할 수 있게 디자인했다.', 'Infographic Design, 3D Visualization', 'Illustrator, Photoshop', '30bdf26c4dcdb41d58fcd245d0e29f40ba29832f'),
-      P('CIRCULAR TIMELINE', '영화 인포그래픽', '2024', 'INCEPTION의 시간 흐름을 나선형 원형 다이어그램으로 표현한 타임라인 인포그래픽. DREAM-1부터 LIMBO까지 각 꿈의 단계를 동심원으로 배치하고, START부터 시작하여 시간의 흐름을 따라 주요 이벤트와 KICK, 캐릭터의 이동 경로를 시각화했다. FISCHER DIES와 SAITO DIES 등 핵심 사건들을 붉은색으로 강조하여 영화의 복잡한 타임라인을 직관적으로 이해할 수 있게 디자인했다.', 'Infographic Design, Data Visualization', 'Illustrator, Photoshop', 'b01201d25256cd6c4a7742d5872cfacb5806e797')
+    {g:'POSTER', ar:'4/5', fit:'contain', items:[
+      P('MAZE BEYOND REALITY', '영화 포스터', '2024', '영화 INCEPTION의 타임라인 포스터이다. 줄거리와 영화 전반의 분위기를 반영하여 영화의 시나리오 플로우를 계단식의 그래픽을 활용해 영화 속 상징적인 시각 요소들과 AI 그래픽을 활용하여 영화 타임라인 포스터를 제작하였다.', 'Art Direction, Visual Design, AI Graphic', 'Midjourney, DALL·E, Photoshop, Illustrator', 'c6b27fbdb822adfdf58a8ee9a21f7aa17a4f3eae')
     ]},
     {g:'ARTWORK', ar:'1/1', fit:'cover', items:[
       P('TITANIC', '비주얼 아트', '2024', '타이타닉의 비극적 순간을 빈티지 그래픽 스타일로 재해석한 비주얼 아트. 침몰하는 배의 장엄함과 시대의 감성을 담아냈다.', 'Art Direction, Visual Design, AI Graphic', 'Midjourney, Photoshop, Illustrator', '316c63c51d617b774da3f30dc2f120e02406b685'),
@@ -307,8 +316,10 @@ const WORKS = {
       P('GET OUT', '비주얼 아트', '2024', '영화 GET OUT에서 영감을 받은 미니멀리즘 비주얼 아트. 백색의 원형 스포트라이트 안에서 추락하는 인물의 실루엣과 파란색 타이포그래피가 공포와 긴장감을 극대화한다.', 'Art Direction, Visual Design, Graphic', 'Photoshop, Illustrator', 'bcd0ce5212632c4487987fe0ea04a2a86f1cecb6'),
       P('PING PONG', '비주얼 아트', '2024', '탁구의 경쾌함과 레트로 감성을 담은 미니멀리즘 비주얼 아트. 따뜻한 주황색 배경 위에 탁구채와 공을 배치하고 거친 하프톤 그레인 텍스처를 적용해 빈티지한 포스터 느낌을 연출했다.', 'Art Direction, Visual Design, Graphic', 'Photoshop, Illustrator', '72e8cc3caf6d1cf3ba807f373582b88516c625a3'),
       P('도 道', '비주얼 아트', '2024', "동양철학의 '도(道)'를 주제로 한 명상적 비주얼 아트. '이 길을 가는 것은 언제나 발 아래에 있다'는 메시지를 담아 현재의 순간에 집중하는 삶의 태도를 거친 하프톤 텍스처로 표현했다.", 'Art Direction, Visual Design, Typography', 'Photoshop, Illustrator', '5db15c347f6a86bae8847ea54f82fce9ac7740c0')
-    ]},
-    {g:'VIDEO', ar:'16/9', fit:'cover', items:[
+    ]}
+  ],
+  VIDEO: [
+    {g:'ALL', ar:'16/9', fit:'cover', items:[
       {t:'The House', k:'SHORT FILM', y:'2025', dur:'3:24', d:'2025 AI 단편영화', img:IM('5244b7b57b'), th:TH('5244b7b57b'), link:'https://www.youtube.com/watch?v=rK1Hab139kA', linkLabel:'YouTube에서 보기'},
       {t:'PANOPTICON : ILLUSION OF AUTONOMY', k:'COMMERCIAL', y:'2025', dur:'1:30', d:'부제: 파놉티콘과 자율의 환상', img:IM('9f073f08aa'), th:TH('9f073f08aa'), link:'https://www.youtube.com/watch?v=u2KNiMfbTeA', linkLabel:'YouTube에서 보기'},
       {t:'觀賞魚 관상어', k:'MUSIC VIDEO', y:'', dur:'4:15', d:'觀賞魚 관상어: 보고 즐기기 위하여 기르는 물고기.', img:IM('107d1ceba9'), th:TH('107d1ceba9'), link:'https://www.youtube.com/watch?v=2r5DZXI7-yw', linkLabel:'YouTube에서 보기'},
@@ -323,12 +334,18 @@ const WORKS = {
   ],
   '3D': []
 };
+WORKS.VISUAL[0].items[0].proc = [
+  P('INCEPTION LAYERS', '영화 인포그래픽', '2024', '영화 INCEPTION의 복잡한 꿈의 레이어 구조를 시각화한 타임라인 인포그래픽. REALITY부터 LIMBO까지 5개 층위의 시간 흐름과 주요 사건들을 미니멀한 다이어그램으로 정리하여 영화의 서사 구조를 한눈에 파악할 수 있도록 디자인했다.', 'Infographic Design, Data Visualization', 'Illustrator, Photoshop', 'f5dafb6f39674b6ad4a08779bb70dab2ae289d60'),
+  P('DREAM ARCHITECTURE', '영화 인포그래픽', '2024', 'INCEPTION의 꿈 속 꿈 구조를 3D 등축투영법으로 시각화한 다이어그램. 각 레이어의 시간 배율과 주요 캐릭터, 킥(Kick) 이벤트, 그리고 상징적 아이콘들을 입체적으로 배치하여 영화의 복잡한 서사를 직관적으로 이해할 수 있게 디자인했다.', 'Infographic Design, 3D Visualization', 'Illustrator, Photoshop', '30bdf26c4dcdb41d58fcd245d0e29f40ba29832f'),
+  P('CIRCULAR TIMELINE', '영화 인포그래픽', '2024', 'INCEPTION의 시간 흐름을 나선형 원형 다이어그램으로 표현한 타임라인 인포그래픽. DREAM-1부터 LIMBO까지 각 꿈의 단계를 동심원으로 배치하고, START부터 시작하여 시간의 흐름을 따라 주요 이벤트와 KICK, 캐릭터의 이동 경로를 시각화했다. FISCHER DIES와 SAITO DIES 등 핵심 사건들을 붉은색으로 강조하여 영화의 복잡한 타임라인을 직관적으로 이해할 수 있게 디자인했다.', 'Infographic Design, Data Visualization', 'Illustrator, Photoshop', 'b01201d25256cd6c4a7742d5872cfacb5806e797')
+];
 
 /* ---------- landforms ---------- */
 function catH(c, x, z, t){
   if(c === 0) return Math.pow(Math.max(0, fbm(x*.11 + 3, z*.11, 4)*.5 + .55), 2.4)*2.6;
   if(c === 1){ const cell = Math.floor(z/9), lz = z - cell*9, cx = hsh(cell)*12 - 6; return 3*Math.exp(-Math.pow((x - cx)/2.2, 2))*Math.exp(-Math.pow((lz - 4.5)/2, 2)) + .06*(fbm(x*.4, z*.4, 2) + .5) + .04; }
   if(c === 2){ const cell = Math.floor(z/7), lz = z - cell*7, h = hsh(cell + 11), cx = h*12 - 6, w = 2 + hsh(cell + 31)*2.5; return 1.6*ease((x - (cx - w))/.3)*ease(((cx + w) - x)/.3)*ease((lz - 1)/.3)*ease((5.5 - lz)/.3) + .04; }
+  if(c === 4) return Math.pow(Math.abs(Math.sin(z*.5 + Math.sin(x*.16)*1.5 - t*.4)), 3)*1.5*(.55 + .45*(fbm(x*.08, z*.08, 2) + .5)) + .05;
   return (Math.sin(x*.55 + z*.45 - t*1.3)*.5 + .5)*1.2 + .05;
 }
 const win = u=>Math.pow(Math.sin(Math.max(0, Math.min(1, u))*Math.PI), 1.4);
@@ -336,6 +353,7 @@ function H2(c, u, v, t){
   if(c === 0) return Math.pow(Math.max(0, fbm(u*2.6 + 3, v*3.2 + t*.03, 4)*.5 + .55), 2.2)*1.6*win(u);
   if(c === 1) return 1.5*Math.exp(-Math.pow((u - .5)/.12, 2))*Math.exp(-Math.pow((v - .55)/.22, 2)) + .04*fbm(u*8, v*6, 2) + .02;
   if(c === 2) return .75*ease((u - .28)/.03)*ease((.72 - u)/.03)*ease((v - .25)/.04)*ease((.78 - v)/.04) + .02;
+  if(c === 4) return Math.pow(Math.abs(Math.sin(v*11 + Math.sin(u*5)*1.3 - t*.5)), 3)*.55*win(u) + .03;
   return (Math.sin(u*14 - t*1.4 + v*5)*.5 + .5)*.45*win(u) + .03;
 }
 function drawRidges2D(ctx, x0, y0, w, h, rows, pts, hf, hot){
@@ -450,6 +468,7 @@ function openDetail(idx){ cur = (idx + flat.length) % flat.length; const {w, g} 
   document.getElementById('dInfo').innerHTML = rows.map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join(''); document.getElementById('dInfo').hidden = !rows.length;
   const a = document.getElementById('dLink'); if(w.link){ a.href = w.link; a.querySelector('span').textContent = w.linkLabel; a.hidden = false; } else a.hidden = true;
   document.getElementById('dCount').textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(flat.length).padStart(2, '0');
+  const pr = document.getElementById('dProc'); if(w.proc && w.proc.length){ pr.innerHTML = '<h4>PROCESS<span>' + w.proc.length + '</span></h4><div class="pgrid">' + w.proc.map(q=>`<figure><img src="${q.img}" alt="${q.t}" loading="lazy"><figcaption><b>${q.t}</b><span>${q.k} · ${q.y}</span><p>${q.d}</p></figcaption></figure>`).join('') + '</div>'; pr.hidden = false; } else { pr.innerHTML = ''; pr.hidden = true; }
   dImg.src = w.img; dImg.alt = w.t; detail.scrollTop = 0;
   if(!detailOpen){ detail.classList.add('on'); detailOpen = true; Sound.select(listCat); setTimeout(()=>document.getElementById('dClose').focus({preventScroll:true}), 60); } else Sound.hover(cur % 6 - 1); }
 function closeDetail(){ detail.classList.remove('on'); detailOpen = false; Sound.back(); if(cards[cur]) cards[cur].focus({preventScroll:true}); }
@@ -550,9 +569,9 @@ if(window.THREE){
       ndc.set(e.clientX/window.innerWidth*2 - 1, -(e.clientY/window.innerHeight)*2 + 1); ray.setFromCamera(ndc, cam); const hit = ray.intersectObjects(CURT, false)[0]; if(!hit) return;
       const p = hit.point, zw = travel + NEAR - p.z; glows.push({x:p.x, zw, t0:nowT}); if(glows.length > 6) glows.shift();
       Sound.glow(Math.max(-1, Math.min(1, p.x/14)), Math.floor(Math.abs(p.x*.7 + zw*.4))); });
-    const W = [1, 0, 0, 0, 0];
+    const W = new Array(CATS.length + 1).fill(0); W[0] = 1;
     const valley = x=>.25 + .75*ease((Math.abs(x) - 1.2)/5);
-    function hf(x, z, t){ let h = 0; if(W[0] > .005) h += W[0]*catH(0, x, z, t)*valley(x); for(let c=0;c<4;c++){ const w = W[c+1]; if(w > .005) h += w*catH(CATS[c].land, x, z, t)*(.35 + .65*valley(x)); } return h + Math.abs(x)*.03; }
+    function hf(x, z, t){ let h = 0; if(W[0] > .005) h += W[0]*catH(0, x, z, t)*valley(x); for(let c=0;c<CATS.length;c++){ const w = W[c+1]; if(w > .005) h += w*catH(CATS[c].land, x, z, t)*(.35 + .65*valley(x)); } return h + Math.abs(x)*.03; }
     /* shooting star */
     const ssPos = new Float32Array(6), ssG = new THREE.BufferGeometry(); ssG.setAttribute('position', new THREE.BufferAttribute(ssPos, 3));
     const ssMat = new THREE.LineBasicMaterial({color:C.ink.clone(), transparent:true, opacity:0, fog:false}); scene.add(new THREE.Line(ssG, ssMat));
@@ -567,9 +586,9 @@ if(window.THREE){
       const auto = view === 'home' ? .9 : view === 'works' ? .5 : view === 'list' ? .35 : .55;
       impulse *= .94; vel += ((auto + impulse) - vel)*.06; travel += vel*dt*MO;
       Sound.speed(vel);
-      const target = [view === 'home' || view === 'profile' || view === 'contacts' || catSel < 0 ? 1 : 0, 0, 0, 0, 0];
+      const target = new Array(CATS.length + 1).fill(0); target[0] = view === 'home' || view === 'profile' || view === 'contacts' || catSel < 0 ? 1 : 0;
       if(view === 'works' && catSel >= 0) target[catSel + 1] = 1; if(view === 'list') { target[0] = 0; target[listCat + 1] = 1; }
-      for(let i=0;i<5;i++) W[i] += (target[i] - W[i])*.03;
+      for(let i=0;i<W.length;i++) W[i] += (target[i] - W[i])*.03;
       const base = travel/SPACING, f0 = Math.floor(base), fr = base - f0;
       nowT = t; for(let q=glows.length-1;q>=0;q--) if(t - glows[q].t0 > 4.5) glows.splice(q, 1);
       const anyG = glows.length > 0, doG = anyG || glowDirty;
