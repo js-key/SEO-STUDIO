@@ -188,6 +188,11 @@ button{font:inherit;color:inherit}
 .pgrid b{font-family:var(--f-display);font-weight:600;font-size:15px}
 .pgrid span{font-size:12.5px;color:var(--mute)}
 .pgrid p{margin:4px 0 0;font-size:13.5px;line-height:1.7;color:#BDBDB8}
+.dimg video{max-width:100%;max-height:74vh;width:auto;height:auto;display:block;border:1px solid var(--rule);background:#000}
+.dimg [hidden]{display:none!important}
+.detail.wide{grid-template-columns:minmax(0,1fr);align-content:start;padding-top:clamp(76px,10vh,100px)}
+.detail.wide .dimg img,.detail.wide .dimg video{width:100%;max-height:60vh;object-fit:contain}
+.detail.wide .info{max-width:760px}
 </style>
 </head>
 <body>
@@ -254,7 +259,7 @@ button{font:inherit;color:inherit}
 
   <div class="detail" id="detail" role="dialog" aria-modal="true" aria-labelledby="dTitle">
     <div class="dtop"><span id="dCount"></span><div class="dnav"><button type="button" id="dPrev" aria-label="이전 작업"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 6H2M6.5 1.5 2 6l4.5 4.5"/></svg></button><button type="button" id="dNext" aria-label="다음 작업"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 6h15M11.5 1.5 16 6l-4.5 4.5"/></svg></button><button type="button" id="dClose" aria-label="닫기"><svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 2l12 12M14 2 2 14"/></svg></button></div></div>
-    <div class="dimg"><img id="dImg" alt=""></div>
+    <div class="dimg"><img id="dImg" alt=""><video id="dVid" muted loop playsinline preload="none" hidden></video></div>
     <div class="info"><span class="eb" id="dCat"></span><h3 id="dTitle"></h3><span class="meta" id="dMeta"></span><p id="dDesc"></p><dl id="dInfo"></dl><a id="dLink" class="dlink" href="#" target="_blank" rel="noopener" hidden><span></span> ↗</a></div>
     <div class="dproc" id="dProc" hidden></div>
   </div>
@@ -332,7 +337,15 @@ const WORKS = {
       {t:'STAY', k:'XR GAME · Web · VR', y:'2026', d:'눈을 떠보니 좁은 방 안에 갇혀있다. 여기서 나갈 수 있을까?', genre:'퍼즐, 미스테리, 스토리, VR', role:'Concept, Visual Design, Interaction', tools:'Three.js, WebXR', img:'w/stay.jpg', th:'w/stay_t.jpg', link:'https://exquisite-chimera-fce7b3.netlify.app', linkLabel:'플레이하기'}
     ]}
   ],
-  '3D': []
+  '3D': [
+    {g:'ENVIRONMENT', ar:'21/9', fit:'cover', items:[
+      {t:'HILLS', k:'3D 환경 · 파노라마 영상', y:'2026', d:'LED 터널 벽면에 상영하기 위해 제작한 5040×1080 파노라마 3D 풍경. 노을빛 속 풀숲과 꽃, 호수와 폭포, 버드나무가 바람에 흔들리는 장면을 Blender에서 만들고 10초 루프 영상으로 렌더링했다.', role:'3D Modeling, Environment, Lighting, Rendering', tools:'Blender, Meshy AI', img:'w/hills.jpg', th:'w/hills_t.jpg', video:'w/hills.mp4', wide:true, proc:[
+        {t:'LOOKDEV', k:'Blender · 노을 조명과 안개', y:'2026', d:'노을빛 조명, 안개 볼륨, 구름과 해를 배치하며 전체 분위기를 잡은 단계.', img:'w/hills_p1.jpg', ar:'16/10'},
+        {t:'SCULPT · GRASS', k:'Blender · 지형 스컬핑', y:'2026', d:'언덕 지형을 스컬핑하고 털(Fur) 시스템으로 풀숲을 덮어 질감을 만든 단계.', img:'w/hills_p2.jpg', ar:'16/10'},
+        {t:'LAYOUT', k:'Blender · 형태 검토', y:'2026', d:'호수, 폭포, 지형의 배치와 형태를 무채색으로 검토한 단계.', img:'w/hills_p3.jpg', ar:'16/10'}
+      ]}
+    ]}
+  ]
 };
 WORKS.VISUAL[0].items[0].proc = [
   P('INCEPTION LAYERS', '영화 인포그래픽', '2024', '영화 INCEPTION의 복잡한 꿈의 레이어 구조를 시각화한 타임라인 인포그래픽. REALITY부터 LIMBO까지 5개 층위의 시간 흐름과 주요 사건들을 미니멀한 다이어그램으로 정리하여 영화의 서사 구조를 한눈에 파악할 수 있도록 디자인했다.', 'Infographic Design, Data Visualization', 'Illustrator, Photoshop', 'f5dafb6f39674b6ad4a08779bb70dab2ae289d60'),
@@ -468,10 +481,12 @@ function openDetail(idx){ cur = (idx + flat.length) % flat.length; const {w, g} 
   document.getElementById('dInfo').innerHTML = rows.map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join(''); document.getElementById('dInfo').hidden = !rows.length;
   const a = document.getElementById('dLink'); if(w.link){ a.href = w.link; a.querySelector('span').textContent = w.linkLabel; a.hidden = false; } else a.hidden = true;
   document.getElementById('dCount').textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(flat.length).padStart(2, '0');
-  const pr = document.getElementById('dProc'); if(w.proc && w.proc.length){ pr.innerHTML = '<h4>PROCESS<span>' + w.proc.length + '</span></h4><div class="pgrid">' + w.proc.map(q=>`<figure><img src="${q.img}" alt="${q.t}" loading="lazy"><figcaption><b>${q.t}</b><span>${q.k} · ${q.y}</span><p>${q.d}</p></figcaption></figure>`).join('') + '</div>'; pr.hidden = false; } else { pr.innerHTML = ''; pr.hidden = true; }
+  const pr = document.getElementById('dProc'); if(w.proc && w.proc.length){ pr.innerHTML = '<h4>PROCESS<span>' + w.proc.length + '</span></h4><div class="pgrid">' + w.proc.map(q=>`<figure><img src="${q.img}" alt="${q.t}" loading="lazy" style="aspect-ratio:${q.ar || '4/5'}"><figcaption><b>${q.t}</b><span>${q.k} · ${q.y}</span><p>${q.d}</p></figcaption></figure>`).join('') + '</div>'; pr.hidden = false; } else { pr.innerHTML = ''; pr.hidden = true; }
+  const dv = document.getElementById('dVid'); detail.classList.toggle('wide', !!w.wide);
+  if(w.video){ dImg.hidden = true; dv.hidden = false; dv.poster = w.img; if(dv.getAttribute('src') !== w.video){ dv.src = w.video; } dv.play().catch(()=>{}); } else { dv.pause(); dv.hidden = true; dImg.hidden = false; }
   dImg.src = w.img; dImg.alt = w.t; detail.scrollTop = 0;
   if(!detailOpen){ detail.classList.add('on'); detailOpen = true; Sound.select(listCat); setTimeout(()=>document.getElementById('dClose').focus({preventScroll:true}), 60); } else Sound.hover(cur % 6 - 1); }
-function closeDetail(){ detail.classList.remove('on'); detailOpen = false; Sound.back(); if(cards[cur]) cards[cur].focus({preventScroll:true}); }
+function closeDetail(){ const dv = document.getElementById('dVid'); dv.pause(); detail.classList.remove('on'); detailOpen = false; Sound.back(); if(cards[cur]) cards[cur].focus({preventScroll:true}); }
 document.getElementById('dClose').addEventListener('click', closeDetail);
 document.getElementById('dPrev').addEventListener('click', ()=>openDetail(cur - 1));
 document.getElementById('dNext').addEventListener('click', ()=>openDetail(cur + 1));
