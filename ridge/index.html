@@ -405,7 +405,7 @@ function drawRidges2D(ctx, x0, y0, w, h, rows, pts, hf, hot){
 
 /* ---------- sound (generated in the browser) ---------- */
 const Sound = (()=>{
-  let ctx = null, master, music, sfx, rev, amb, ambFilter, on = true, started = false;
+  let ctx = null, master, music, sfx, rev, amb, ambFilter, on = true, started = false, ducked = false;
   try{ const v = localStorage.getItem('hjs-sound'); if(v === 'off') on = false; }catch(e){}
   const NOTES = { D2:73.42, A2:110, B2:123.47, G2:98, E2:82.41, Fs3:185, E3:164.81, A3:220, B3:246.94, D3:146.83, Cs4:277.18, Fs4:369.99, E4:329.63, D4:293.66, G3:196, A4:440, B4:493.88, Fs5:739.99, D5:587.33, E5:659.25, A5:880 };
   const CHORDS = [[NOTES.D2, NOTES.A2, NOTES.E3, NOTES.Fs3, NOTES.Cs4],[NOTES.B2, NOTES.Fs3, NOTES.D3*2, NOTES.A3, NOTES.E4],[NOTES.G2, NOTES.D3, NOTES.A3, NOTES.B3, NOTES.Fs4],[NOTES.E2, NOTES.B2, NOTES.G3, NOTES.D4, NOTES.A4]];
@@ -418,7 +418,7 @@ const Sound = (()=>{
     try{ ctx = new AC(); }catch(e){ return; }
     started = true;
     master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination);
-    master.gain.setTargetAtTime(on ? .9 : 0, ctx.currentTime, .8);
+    master.gain.setTargetAtTime(on && !ducked ? .9 : 0, ctx.currentTime, .8);
     rev = impulse(8, 3); const revG = ctx.createGain(); revG.gain.value = .6; rev.connect(revG); revG.connect(master);
     music = ctx.createGain(); music.gain.value = .24; music.connect(master); const ms = ctx.createGain(); ms.gain.value = .9; music.connect(ms); ms.connect(rev);
     sfx = ctx.createGain(); sfx.gain.value = .5; sfx.connect(master); const ss = ctx.createGain(); ss.gain.value = .35; sfx.connect(ss); ss.connect(rev);
@@ -444,7 +444,8 @@ const Sound = (()=>{
   return {
     start,
     get on(){ return on; },
-    toggle(){ on = !on; try{ localStorage.setItem('hjs-sound', on ? 'on' : 'off'); }catch(e){} if(!started){ if(on) start(); return on; } if(ctx.state === 'suspended') ctx.resume(); master.gain.setTargetAtTime(on ? .9 : 0, ctx.currentTime, .25); if(on) setTimeout(()=>this.select(1), 120); return on; },
+    duck(v){ ducked = !!v; if(!started || !master) return; master.gain.setTargetAtTime(on && !ducked ? .9 : 0, ctx.currentTime, ducked ? .15 : .9); },
+    toggle(){ on = !on; try{ localStorage.setItem('hjs-sound', on ? 'on' : 'off'); }catch(e){} if(!started){ if(on) start(); return on; } if(ctx.state === 'suspended') ctx.resume(); master.gain.setTargetAtTime(on && !ducked ? .9 : 0, ctx.currentTime, .25); if(on && !ducked) setTimeout(()=>this.select(1), 120); return on; },
     hover(i){ blip(1046.5*Math.pow(2, (i||0)*2/12), .1, .18); blip(2093*Math.pow(2, (i||0)*2/12), .025, .12, 'triangle'); },
     select(k){ if(!ctx || ctx.state !== 'running') return; const t = ctx.currentTime, base = [587.33, 659.25, 739.99, 880][(k||0) % 4]; bell(base, t, .14, sfx); bell(base*1.5, t + .09, .1, sfx); },
     back(){ if(!ctx || ctx.state !== 'running') return; const t = ctx.currentTime; bell(880, t, .1, sfx); bell(587.33, t + .1, .1, sfx); },
@@ -509,12 +510,13 @@ function openDetail(idx){ cur = (idx + flat.length) % flat.length; const {w, g} 
   document.getElementById('dCount').textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(flat.length).padStart(2, '0');
   const pr = document.getElementById('dProc'); if(w.proc && w.proc.length){ pr.innerHTML = '<h4>PROCESS<span>' + w.proc.length + '</span></h4><div class="pgrid">' + w.proc.map(q=>`<figure><img src="${q.img}" alt="${q.t}" loading="lazy" style="aspect-ratio:${q.ar || '4/5'}"><figcaption><b>${q.t}</b><span>${q.k} · ${q.y}</span>${q.d ? `<p>${q.d}</p>` : ''}</figcaption></figure>`).join('') + '</div>'; pr.hidden = false; } else { pr.innerHTML = ''; pr.hidden = true; }
   const sh = document.getElementById('dShorts'); if(w.shorts){ sh.innerHTML = '<h4>' + w.shorts.title + '<span>' + w.shorts.ids.length + '</span></h4><div class="sgrid">' + w.shorts.ids.map((id, n)=>`<figure><button type="button" class="short" data-id="${id}" aria-label="${w.shorts.title} 0${n+1} 재생"><img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt=""><i aria-hidden="true"></i></button><figcaption><b>${w.shorts.title} 0${n+1}</b><a href="https://www.youtube.com/shorts/${id}" target="_blank" rel="noopener">YouTube ↗</a></figcaption></figure>`).join('') + '</div>'; sh.hidden = false;
-    sh.querySelectorAll('.short').forEach(btn=>btn.addEventListener('click', ()=>{ const f = document.createElement('iframe'); f.src = 'https://www.youtube-nocookie.com/embed/' + btn.dataset.id + '?autoplay=1&playsinline=1&rel=0'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true; f.title = 'YouTube'; btn.replaceWith(f); })); } else { sh.innerHTML = ''; sh.hidden = true; }
+    sh.querySelectorAll('.short').forEach(btn=>btn.addEventListener('click', ()=>{ const f = document.createElement('iframe'); f.src = 'https://www.youtube-nocookie.com/embed/' + btn.dataset.id + '?autoplay=1&playsinline=1&rel=0'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true; f.title = 'YouTube'; btn.replaceWith(f); Sound.duck(true); })); } else { sh.innerHTML = ''; sh.hidden = true; } Sound.duck(false);
   const dv = document.getElementById('dVid'); detail.classList.toggle('wide', !!w.wide);
   if(w.video){ dImg.hidden = true; dv.hidden = false; dv.poster = w.img; dv.controls = !!w.controls; dv.loop = !w.controls; dv.muted = !w.controls; if(dv.getAttribute('src') !== w.video){ dv.src = w.video; } if(!w.controls) dv.play().catch(()=>{}); else dv.pause(); } else { dv.pause(); dv.hidden = true; dImg.hidden = false; }
   dImg.src = w.img; dImg.alt = w.t; detail.scrollTop = 0;
   if(!detailOpen){ detail.classList.add('on'); detailOpen = true; Sound.select(listCat); setTimeout(()=>document.getElementById('dClose').focus({preventScroll:true}), 60); } else Sound.hover(cur % 6 - 1); }
-function closeDetail(){ const dv = document.getElementById('dVid'); dv.pause(); document.getElementById('dShorts').innerHTML = ''; detail.classList.remove('on'); detailOpen = false; Sound.back(); if(cards[cur]) cards[cur].focus({preventScroll:true}); }
+{ const dv = document.getElementById('dVid'); dv.addEventListener('play', ()=>{ if(dv.controls) Sound.duck(true); }); dv.addEventListener('pause', ()=>{ if(dv.controls && !document.querySelector('#dShorts iframe')) Sound.duck(false); }); dv.addEventListener('ended', ()=>{ if(!document.querySelector('#dShorts iframe')) Sound.duck(false); }); }
+function closeDetail(){ const dv = document.getElementById('dVid'); dv.pause(); document.getElementById('dShorts').innerHTML = ''; Sound.duck(false); detail.classList.remove('on'); detailOpen = false; Sound.back(); if(cards[cur]) cards[cur].focus({preventScroll:true}); }
 document.getElementById('dClose').addEventListener('click', closeDetail);
 document.getElementById('dPrev').addEventListener('click', ()=>openDetail(cur - 1));
 document.getElementById('dNext').addEventListener('click', ()=>openDetail(cur + 1));
