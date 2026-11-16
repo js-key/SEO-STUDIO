@@ -630,7 +630,7 @@ if(window.THREE){
     const ssPos = new Float32Array(6), ssG = new THREE.BufferGeometry(); ssG.setAttribute('position', new THREE.BufferAttribute(ssPos, 3));
     const ssMat = new THREE.LineBasicMaterial({color:C.ink.clone(), transparent:true, opacity:0, fog:false}); scene.add(new THREE.Line(ssG, ssMat));
     const ssHead = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3)), new THREE.PointsMaterial({color:C.ink.clone(), size:2.6, sizeAttenuation:false, transparent:true, opacity:0, fog:false})); scene.add(ssHead);
-    const SS = {on:false, t:0, next:6 + Math.random()*10, p0:new V3(), d:new V3(), dur:1.2, sp:30};
+    const SS = {on:false, t:0, next:6 + Math.random()*2, p0:new V3(), d:new V3(), dur:1.2, sp:30};
     function spawnStar(){ const side = Math.random() < .5 ? -1 : 1; SS.p0.set(cam.position.x + (Math.random()*50 - 25), 14 + Math.random()*12, -62 - Math.random()*10); SS.d.set(-side*(.6 + Math.random()*.4), -(.35 + Math.random()*.3), 0).normalize(); SS.dur = 1 + Math.random()*.6; SS.on = true; SS.t = 0; Sound.whoosh(Math.max(-1, Math.min(1, SS.p0.x/30))); }
     let travel = 0, vel = .9, mx = 0, my = 0, camY = 2.5, lookY = 1.2;
     window.addEventListener('pointermove', e=>{ mx = e.clientX/window.innerWidth*2 - 1; my = e.clientY/window.innerHeight*2 - 1; });
@@ -659,7 +659,7 @@ if(window.THREE){
       cam.lookAt(cam.position.x*.4, lookY, -14); cam.rotation.z += -cam.position.x*.035;
       starsP.position.x = -cam.position.x*.2;
       SS.next -= dt; if(!SS.on && SS.next <= 0 && !REDUCE){ spawnStar(); }
-      if(SS.on){ SS.t += dt; const k = SS.t/SS.dur; if(k >= 1){ SS.on = false; SS.next = 14 + Math.random()*26; ssMat.opacity = 0; ssHead.material.opacity = 0; }
+      if(SS.on){ SS.t += dt; const k = SS.t/SS.dur; if(k >= 1){ SS.on = false; SS.next = 6 + Math.random()*2; ssMat.opacity = 0; ssHead.material.opacity = 0; }
         else { const head = SS.p0.clone().addScaledVector(SS.d, SS.sp*SS.t), tail = head.clone().addScaledVector(SS.d, -Math.min(SS.sp*SS.t, 9)*(1 - k*.5)); ssPos.set([tail.x, tail.y, tail.z, head.x, head.y, head.z]); ssG.attributes.position.needsUpdate = true; const a = Math.sin(Math.PI*k); ssMat.opacity = a*.9; ssHead.geometry.attributes.position.array.set([head.x, head.y, head.z]); ssHead.geometry.attributes.position.needsUpdate = true; ssHead.material.opacity = a; } }
       r.render(scene, cam); orbTick(t, dt, sw, sh);
     });
