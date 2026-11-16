@@ -55,8 +55,8 @@ button{font:inherit;color:inherit}
 
 /* home */
 .ttl{position:absolute;left:var(--gl);top:clamp(70px,13vh,150px)}
-.ttl .nm{display:block;font-family:var(--f-display);font-weight:700;font-size:clamp(16px,1.9vw,30px);letter-spacing:.42em;color:#D6D6D1;margin-bottom:clamp(6px,1.2vh,14px);padding-left:.3em}
-.ttl h1{margin:0;font-family:var(--f-title);font-weight:400;font-size:clamp(72px,18.5vw,340px);line-height:.88;white-space:nowrap;letter-spacing:-.025em}
+.ttl .nm{display:block;font-family:var(--f-title);font-weight:400;font-size:clamp(16px,1.9vw,30px);letter-spacing:.42em;color:#D6D6D1;margin-bottom:clamp(6px,1.2vh,14px);padding-left:.3em}
+.ttl h1{margin:0;font-family:var(--f-title);font-weight:400;font-size:clamp(54px,13.9vw,255px);line-height:.88;white-space:nowrap;letter-spacing:-.025em}
 .menu{position:absolute;left:var(--gl);bottom:clamp(60px,15vh,170px);display:flex;flex-direction:column;gap:clamp(4px,1.1vh,12px)}
 .menu button{all:unset;cursor:pointer;font-family:var(--f-title);font-weight:400;font-size:clamp(22px,2.5vw,38px);letter-spacing:.08em;color:var(--dim);transition:color .3s,transform .35s cubic-bezier(.2,.7,.2,1)}
 .menu button.on{color:var(--paper);transform:translateX(.35em)}
@@ -147,7 +147,7 @@ button{font:inherit;color:inherit}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}}
 
 /* works grid */
-.lwrap{position:absolute;left:0;right:0;top:clamp(170px,27vh,260px);bottom:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:0 var(--gr) 80px var(--gl);scrollbar-width:thin;scrollbar-color:#333 transparent;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 28px)}
+.lwrap{position:absolute;left:0;right:0;top:clamp(170px,27vh,260px);bottom:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;padding:0 var(--gr) 80px var(--gl);scrollbar-width:thin;scrollbar-color:#333 transparent}
 .grp{padding-top:28px}
 .grp h3{margin:0 0 18px;display:flex;align-items:baseline;gap:12px;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.24em;color:var(--mute);border-bottom:1px solid var(--rule);padding-bottom:12px}
 .grp h3 span{color:var(--dim);letter-spacing:.1em}
@@ -163,7 +163,7 @@ button{font:inherit;color:inherit}
 .wcard:focus-visible{outline:none}
 .empty{aspect-ratio:4/3;border:1px dashed #4A4A52}
 /* detail */
-.detail{overflow-y:auto;align-items:start;align-content:center}
+.detail{overflow-y:auto;align-items:start;align-content:start}
 .dtop{position:absolute;top:max(18px,env(safe-area-inset-top,0px));left:var(--gl);right:var(--gr);display:flex;justify-content:space-between;align-items:center;height:40px;font-size:13px;letter-spacing:.14em;color:var(--mute)}
 .dnav{display:flex;gap:4px}
 .dnav button{all:unset;cursor:pointer;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;color:var(--paper)}
@@ -196,6 +196,20 @@ button{font:inherit;color:inherit}
 [hidden]{display:none!important}
 #dDesc{white-space:pre-line}
 #dCat[hidden]{display:none}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:clamp(14px,1.6vw,24px)}
+.sgrid figure{margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+.short{all:unset;cursor:pointer;position:relative;display:block;aspect-ratio:9/16;background:#141416;border:1px solid var(--rule);overflow:hidden;transition:border-color .25s}
+.short img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:grayscale(1) brightness(.8);transition:filter .4s}
+.short i{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;border:1px solid var(--paper);background:rgba(11,11,12,.5)}
+.short i::after{content:"";position:absolute;left:18px;top:14px;border-left:13px solid var(--paper);border-top:9px solid transparent;border-bottom:9px solid transparent}
+.short:hover,.short:focus-visible{border-color:var(--paper);outline:none}
+.short:hover img,.short:focus-visible img{filter:none}
+.sgrid iframe{width:100%;aspect-ratio:9/16;border:1px solid var(--rule);display:block;background:#000}
+.sgrid figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sgrid b{font-family:var(--f-display);font-weight:600;font-size:13.5px}
+.sgrid a{font-size:12.5px;color:var(--mute);text-decoration:none}
+.sgrid a:hover{color:var(--paper)}
+.lwrap{border-top:1px solid transparent}
 </style>
 </head>
 <body>
@@ -265,6 +279,7 @@ button{font:inherit;color:inherit}
     <div class="dimg"><img id="dImg" alt=""><video id="dVid" muted loop playsinline preload="none" hidden></video></div>
     <div class="info"><span class="eb" id="dCat"></span><h3 id="dTitle"></h3><span class="meta" id="dMeta"></span><p id="dDesc"></p><dl id="dInfo"></dl><a id="dLink" class="dlink" href="#" target="_blank" rel="noopener" hidden><span></span> ↗</a></div>
     <div class="dproc" id="dProc" hidden></div>
+    <div class="dproc" id="dShorts" hidden></div>
   </div>
 </main>
 
@@ -334,7 +349,12 @@ const WORKS = {
       {t:'세미원', k:'DOCUMENTARY', y:'', dur:'12:40', d:'양평 세미원 여행을 위한 투어 가이드 영상', img:IM('86d81724fc'), th:TH('86d81724fc'), link:'https://www.youtube.com/watch?v=8X4pxkvTo7w', linkLabel:'YouTube에서 보기'}
     ]}
   ],
-  INTERACTION: [],
+  INTERACTION: [
+    {g:'WEB', ar:'16/9', fit:'cover', items:[
+      {t:'WHERE IS YOUR LAIKA?', k:'인터랙티브 웹 · API 프로젝트', y:'', d:'날짜를 고르면 NASA POWER API의 실제 일사량 데이터를 불러와, 그 수치에 맞는 나만의 우주견 라이카를 소환하는 인터랙티브 웹.', img:'w/laika.jpg', th:'w/laika_t.jpg', video:'w/laika.mp4', controls:true,
+        shorts:{title:'TOUCHDESIGNER', ids:['eLE2udflPdg', 'ad0x2_o8Dvk', '-qz0TjrkfCM', 'NRqrOSMAcOk', 'vPDhRAt7YLQ']}}
+    ]}
+  ],
   GAME: [
     {g:'XR', ar:'16/10', fit:'cover', items:[
       {t:'STAY', k:'XR GAME · Web · VR', y:'2026', d:'눈을 떠보니 좁은 방 안에 갇혀있다. 여기서 나갈 수 있을까?', genre:'퍼즐, 미스테리, 스토리, VR', role:'Concept, Visual Design, Interaction', tools:'Three.js, WebXR', img:'w/stay.jpg', th:'w/stay_t.jpg', link:'https://exquisite-chimera-fce7b3.netlify.app', linkLabel:'플레이하기'}
@@ -470,7 +490,7 @@ function openList(i){ listCat = i; const c = CATS[i]; listName.textContent = c.i
   if(!groups.length){ const g = document.createElement('div'); g.className = 'grid'; for(let n=0;n<4;n++){ const d = document.createElement('div'); d.className = 'empty'; d.setAttribute('aria-hidden', 'true'); g.appendChild(d); } strip.appendChild(g); }
   groups.forEach(gr=>{ const sec = document.createElement('section'); sec.className = 'grp'; sec.innerHTML = `<h3>${gr.g}<span>${gr.items.length}</span></h3>`; const grid = document.createElement('div'); grid.className = 'grid';
     gr.items.forEach(w=>{ const idx = flat.length; flat.push({w, g:gr.g}); const b = document.createElement('button'); b.type = 'button'; b.className = 'wcard';
-      b.innerHTML = `<span class="ph" style="aspect-ratio:${gr.ar}"><img src="${w.th}" alt="" loading="lazy" style="object-fit:${gr.fit}">${w.dur ? `<em>${w.dur}</em>` : ''}</span><b>${w.t}</b><span class="mt">${w.k}${w.y ? ' · ' + w.y : ''}</span>`;
+      b.innerHTML = `<span class="ph" style="aspect-ratio:${gr.ar}"><img src="${w.th}" alt="" decoding="async" style="object-fit:${gr.fit}">${w.dur ? `<em>${w.dur}</em>` : ''}</span><b>${w.t}</b><span class="mt">${w.k}${w.y ? ' · ' + w.y : ''}</span>`;
       b.addEventListener('mouseenter', ()=>Sound.hover(idx % 6 - 1)); b.addEventListener('click', ()=>openDetail(idx)); grid.appendChild(b); cards.push(b); });
     sec.appendChild(grid); strip.appendChild(sec); });
   strip.scrollTop = 0; go('list'); }
@@ -485,11 +505,13 @@ function openDetail(idx){ cur = (idx + flat.length) % flat.length; const {w, g} 
   const a = document.getElementById('dLink'); if(w.link){ a.href = w.link; a.querySelector('span').textContent = w.linkLabel; a.hidden = false; } else a.hidden = true;
   document.getElementById('dCount').textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(flat.length).padStart(2, '0');
   const pr = document.getElementById('dProc'); if(w.proc && w.proc.length){ pr.innerHTML = '<h4>PROCESS<span>' + w.proc.length + '</span></h4><div class="pgrid">' + w.proc.map(q=>`<figure><img src="${q.img}" alt="${q.t}" loading="lazy" style="aspect-ratio:${q.ar || '4/5'}"><figcaption><b>${q.t}</b><span>${q.k} · ${q.y}</span>${q.d ? `<p>${q.d}</p>` : ''}</figcaption></figure>`).join('') + '</div>'; pr.hidden = false; } else { pr.innerHTML = ''; pr.hidden = true; }
+  const sh = document.getElementById('dShorts'); if(w.shorts){ sh.innerHTML = '<h4>' + w.shorts.title + '<span>' + w.shorts.ids.length + '</span></h4><div class="sgrid">' + w.shorts.ids.map((id, n)=>`<figure><button type="button" class="short" data-id="${id}" aria-label="${w.shorts.title} 0${n+1} 재생"><img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt=""><i aria-hidden="true"></i></button><figcaption><b>${w.shorts.title} 0${n+1}</b><a href="https://www.youtube.com/shorts/${id}" target="_blank" rel="noopener">YouTube ↗</a></figcaption></figure>`).join('') + '</div>'; sh.hidden = false;
+    sh.querySelectorAll('.short').forEach(btn=>btn.addEventListener('click', ()=>{ const f = document.createElement('iframe'); f.src = 'https://www.youtube-nocookie.com/embed/' + btn.dataset.id + '?autoplay=1&playsinline=1&rel=0'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true; f.title = 'YouTube'; btn.replaceWith(f); })); } else { sh.innerHTML = ''; sh.hidden = true; }
   const dv = document.getElementById('dVid'); detail.classList.toggle('wide', !!w.wide);
-  if(w.video){ dImg.hidden = true; dv.hidden = false; dv.poster = w.img; if(dv.getAttribute('src') !== w.video){ dv.src = w.video; } dv.play().catch(()=>{}); } else { dv.pause(); dv.hidden = true; dImg.hidden = false; }
+  if(w.video){ dImg.hidden = true; dv.hidden = false; dv.poster = w.img; dv.controls = !!w.controls; dv.loop = !w.controls; dv.muted = !w.controls; if(dv.getAttribute('src') !== w.video){ dv.src = w.video; } if(!w.controls) dv.play().catch(()=>{}); else dv.pause(); } else { dv.pause(); dv.hidden = true; dImg.hidden = false; }
   dImg.src = w.img; dImg.alt = w.t; detail.scrollTop = 0;
   if(!detailOpen){ detail.classList.add('on'); detailOpen = true; Sound.select(listCat); setTimeout(()=>document.getElementById('dClose').focus({preventScroll:true}), 60); } else Sound.hover(cur % 6 - 1); }
-function closeDetail(){ const dv = document.getElementById('dVid'); dv.pause(); detail.classList.remove('on'); detailOpen = false; Sound.back(); if(cards[cur]) cards[cur].focus({preventScroll:true}); }
+function closeDetail(){ const dv = document.getElementById('dVid'); dv.pause(); document.getElementById('dShorts').innerHTML = ''; detail.classList.remove('on'); detailOpen = false; Sound.back(); if(cards[cur]) cards[cur].focus({preventScroll:true}); }
 document.getElementById('dClose').addEventListener('click', closeDetail);
 document.getElementById('dPrev').addEventListener('click', ()=>openDetail(cur - 1));
 document.getElementById('dNext').addEventListener('click', ()=>openDetail(cur + 1));
@@ -540,7 +562,7 @@ if(window.THREE){
     const hpM = new THREE.ShaderMaterial({ uniforms:{uDpr:{value:DPR}}, transparent:true, depthWrite:false,
       vertexShader:'attribute float a; uniform float uDpr; varying float va; void main(){ va = a; vec4 mv = modelViewMatrix*vec4(position, 1.0); gl_Position = projectionMatrix*mv; gl_PointSize = a < 0.03 ? 0.0 : a*15.0*uDpr*clamp(7.0/(-mv.z), 0.35, 1.6); }',
       fragmentShader:'varying float va; void main(){ float d = length(gl_PointCoord - 0.5); if(d > 0.5) discard; gl_FragColor = vec4(vec3(0.95), (1.0 - smoothstep(0.4, 0.5, d))*min(1.0, va*3.0)); }' });
-    const hp = new THREE.Points(hpG, hpM); hp.frustumCulled = false; scene.add(hp);
+    const hp = new THREE.Points(hpG, hpM); hp.frustumCulled = false; scene.add(hp); hp.visible = false;
     const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 
     /* ---------- halftone orb (PROFILE · CONTACTS) ---------- */
@@ -611,11 +633,12 @@ if(window.THREE){
       nowT = t; for(let q=glows.length-1;q>=0;q--) if(t - glows[q].t0 > 4.5) glows.splice(q, 1);
       const anyG = glows.length > 0, doG = anyG || glowDirty;
       for(let k=0;k<ROWS;k++){ const zw = (f0 + k)*SPACING, z = NEAR - (k - fr)*SPACING, row = RW[k];
-        for(let i=0;i<PTS;i++){ const x = -WIDTH/2 + i/(PTS - 1)*WIDTH, y = hf(x, zw, t), a = i*3, b = i*6; row.lp[a] = x; row.lp[a+1] = y; row.lp[a+2] = z; row.cp[b] = x; row.cp[b+1] = y; row.cp[b+2] = z; row.cp[b+3] = x; row.cp[b+4] = -8; row.cp[b+5] = z;
-          if(doG){ let gi = 0; for(const g of glows){ const age = t - g.t0, dx = x - g.x, dz = (zw - g.zw)*1.5, d = Math.sqrt(dx*dx + dz*dz); gi += (Math.exp(-d*d/1.1)*1.5 + Math.exp(-Math.pow(d - age*2.2, 2)/.22)*.8*Math.exp(-age*.5))*Math.exp(-age*.75); }
-            gi = Math.min(1, gi); const c = BASE + (1 - BASE)*Math.min(1, gi*2.2); row.lc[a] = row.lc[a+1] = row.lc[a+2] = c; const q = k*PTS + i; hpPos[q*3] = x; hpPos[q*3+1] = y + .02; hpPos[q*3+2] = z; hpA[q] = gi; } }
+        for(let i=0;i<PTS;i++){ const x = -WIDTH/2 + i/(PTS - 1)*WIDTH, a = i*3, b = i*6; let y = hf(x, zw, t), gi = 0;
+          if(anyG){ for(const g of glows){ const age = t - g.t0, dx = x - g.x, dz = (zw - g.zw)*1.2, d = Math.sqrt(dx*dx + dz*dz), front = age*3.4, env = Math.exp(-Math.pow(d - front, 2)/(1.2 + age*.8))*Math.exp(-age*.75), w = Math.sin((d - front)*3.2)*env; y += w*.55; gi += Math.abs(w)*.9 + Math.exp(-d*d/.6)*Math.exp(-age*3)*.5; } }
+          row.lp[a] = x; row.lp[a+1] = y; row.lp[a+2] = z; row.cp[b] = x; row.cp[b+1] = y; row.cp[b+2] = z; row.cp[b+3] = x; row.cp[b+4] = -8; row.cp[b+5] = z;
+          if(doG){ const c = BASE + (1 - BASE)*Math.min(1, gi*1.6); row.lc[a] = row.lc[a+1] = row.lc[a+2] = c; } }
         row.lg.attributes.position.needsUpdate = true; row.cg.attributes.position.needsUpdate = true; if(doG) row.lg.attributes.color.needsUpdate = true; }
-      if(doG){ hpG.attributes.position.needsUpdate = true; hpG.attributes.a.needsUpdate = true; } glowDirty = anyG;
+      glowDirty = anyG;
       const ty2 = view === 'works' || view === 'list' ? 4.2 : 2.5, tl = view === 'works' || view === 'list' ? 0 : 1.2;
       camY += (ty2 - camY)*.03; lookY += (tl - lookY)*.03;
       cam.position.x += (mx*.6 - cam.position.x)*.03; cam.position.y = camY - my*.15; cam.position.z = 0;
