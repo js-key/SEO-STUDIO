@@ -618,7 +618,8 @@ if(window.THREE){
       r.autoClear = false; r.clearDepth(); r.render(oScene, oCam); r.autoClear = true;
     }
     const orbClick = e=>{ const hit = orbPick(e.clientX, e.clientY); if(!hit) return false; oU.uRipDir.value.copy(hit); oU.uRip.value = 0; Sound.glow(-.4, view === 'contacts' ? 5 : 2); return true; };
-    window.addEventListener('pointerdown', e=>{ const tg = e.target; if(!detailOpen && orbClick(e)) return; if(detailOpen || !(tg === cv || tg === app || (tg.classList && (tg.classList.contains('view') || tg.classList.contains('shade'))))) return;
+    window.addEventListener('pointerdown', e=>{ const tg = e.target; if(!detailOpen && orbClick(e)) return; const inList = tg.closest && tg.closest('#strip, [data-view="list"]') && !tg.closest('button, a, .wcard');
+      if(detailOpen || !(inList || tg === cv || tg === app || (tg.classList && (tg.classList.contains('view') || tg.classList.contains('shade'))))) return;
       ndc.set(e.clientX/window.innerWidth*2 - 1, -(e.clientY/window.innerHeight)*2 + 1); ray.setFromCamera(ndc, cam); const hit = ray.intersectObjects(CURT, false)[0]; if(!hit) return;
       const p = hit.point, zw = travel + NEAR - p.z; glows.push({x:p.x, zw, t0:nowT}); if(glows.length > 6) glows.shift();
       Sound.glow(Math.max(-1, Math.min(1, p.x/14)), Math.floor(Math.abs(p.x*.7 + zw*.4))); });
