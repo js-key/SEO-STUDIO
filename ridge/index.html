@@ -268,7 +268,7 @@ button{font:inherit;color:inherit}
   <section class="view" data-view="contacts" aria-label="연락처">
     <div class="panel">
       <span class="eb">CONTACTS</span>
-      <h2>SAY HELLO</h2>
+      <h2>HELLO</h2>
       <div class="links">
         <a href="https://www.instagram.com/js.key_archive/" target="_blank" rel="noopener"><b>INSTAGRAM</b><span>@js.key_archive</span><em>↗</em></a>
         <a href="https://www.youtube.com/@jungseo_studio" target="_blank" rel="noopener"><b>YOUTUBE</b><span>정서 SEO · @jungseo_studio</span><em>↗</em></a>
@@ -489,7 +489,7 @@ syncSnd();
 
 /* works · categories */
 const catsEl = document.getElementById('cats');
-const catItems = CATS.map((c,i)=>{ const b = document.createElement('button'); b.type = 'button'; b.className = 'cat'; const cv = document.createElement('canvas'); cv.width = 480; cv.height = 270; b.appendChild(cv); b.insertAdjacentHTML('beforeend', `<i>0${i+1}</i><b>${c.id}</b>`);
+const catItems = CATS.map((c,i)=>{ const b = document.createElement('button'); b.type = 'button'; b.className = 'cat'; const cv = document.createElement('canvas'); cv.width = 480; cv.height = 270; b.appendChild(cv); b.insertAdjacentHTML('beforeend', `<b>${c.id}</b>`);
   b.addEventListener('mouseenter', ()=>{ if(catSel !== i) setCat(i, true); }); b.addEventListener('focus', ()=>{ if(catSel !== i) setCat(i, false); }); b.addEventListener('click', ()=>openList(i)); catsEl.appendChild(b); return {b, cv, drawn:false}; });
 function setCat(i, sound){ catSel = (i + CATS.length) % CATS.length; catItems.forEach((it,j)=>{ it.b.classList.toggle('on', j === catSel); it.drawn = false; }); catsEl.classList.add('has-on'); if(sound) Sound.hover(catSel + 1); }
 /* list · works grid */
