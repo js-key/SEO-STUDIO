@@ -356,6 +356,9 @@ const WORKS = {
     ]}
   ],
   GAME: [
+    {g:'WEB', ar:'16/9', fit:'cover', items:[
+      {t:'여명 AT DAWN', k:'WEB GAME', y:'', d:'', trailerTools:'Blender, Higgsfield, Premiere Pro', img:'w/dawn.jpg', th:'w/dawn_t.jpg', video:'w/dawn.mp4', controls:true, link:'https://motionseo.github.io/at-dawn/', linkLabel:'플레이하기'}
+    ]},
     {g:'XR', ar:'16/10', fit:'cover', items:[
       {t:'STAY', k:'XR GAME · Web · VR', y:'2026', d:'눈을 떠보니 좁은 방 안에 갇혀있다. 여기서 나갈 수 있을까?', genre:'퍼즐, 미스테리, 스토리, VR', role:'Concept, Visual Design, Interaction', tools:'Three.js, WebXR', img:'w/stay.jpg', th:'w/stay_t.jpg', link:'https://exquisite-chimera-fce7b3.netlify.app', linkLabel:'플레이하기'}
     ]}
@@ -500,7 +503,7 @@ function openDetail(idx){ cur = (idx + flat.length) % flat.length; const {w, g} 
   const dc = document.getElementById('dCat'); dc.textContent = CATS[listCat].id + ' · ' + g; dc.hidden = CATS[listCat].id === 'VIDEO'; document.getElementById('dTitle').textContent = w.t;
   document.getElementById('dMeta').textContent = [w.k, w.y, w.dur].filter(Boolean).join(' · ');
   document.getElementById('dDesc').textContent = w.d || '';
-  const rows = [['TOOLS', w.tools], ['GENRE', w.genre]].filter(r=>r[1]);
+  const rows = [['TOOLS', w.tools], ['TRAILER', w.trailerTools], ['GENRE', w.genre]].filter(r=>r[1]);
   document.getElementById('dInfo').innerHTML = rows.map(r=>`<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join(''); document.getElementById('dInfo').hidden = !rows.length;
   const a = document.getElementById('dLink'); if(w.link){ a.href = w.link; a.querySelector('span').textContent = w.linkLabel; a.hidden = false; } else a.hidden = true;
   document.getElementById('dCount').textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(flat.length).padStart(2, '0');
