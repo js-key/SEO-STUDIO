@@ -190,6 +190,8 @@ button{font:inherit;color:inherit}
 .pgrid p{margin:4px 0 0;font-size:13.5px;line-height:1.7;color:#BDBDB8}
 .dimg video{max-width:100%;max-height:74vh;width:auto;height:auto;display:block;border:1px solid var(--rule);background:#000}
 .dimg [hidden]{display:none!important}
+#dYt{width:100%;aspect-ratio:16/9;max-height:74vh}
+#dYt iframe{width:100%;height:100%;display:block;border:1px solid var(--rule);background:#000}
 .detail.wide{grid-template-columns:minmax(0,1fr);align-content:start;padding-top:clamp(76px,10vh,100px)}
 .detail.wide .dimg img,.detail.wide .dimg video{width:100%;max-height:60vh;object-fit:contain}
 .detail.wide .info{max-width:760px}
@@ -276,7 +278,7 @@ button{font:inherit;color:inherit}
 
   <div class="detail" id="detail" role="dialog" aria-modal="true" aria-labelledby="dTitle">
     <div class="dtop"><span id="dCount"></span><div class="dnav"><button type="button" id="dPrev" aria-label="이전 작업"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 6H2M6.5 1.5 2 6l4.5 4.5"/></svg></button><button type="button" id="dNext" aria-label="다음 작업"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 6h15M11.5 1.5 16 6l-4.5 4.5"/></svg></button><button type="button" id="dClose" aria-label="닫기"><svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 2l12 12M14 2 2 14"/></svg></button></div></div>
-    <div class="dimg"><img id="dImg" alt=""><video id="dVid" muted loop playsinline preload="none" hidden></video></div>
+    <div class="dimg"><img id="dImg" alt=""><video id="dVid" muted loop playsinline preload="none" hidden></video><div id="dYt" hidden></div></div>
     <div class="info"><span class="eb" id="dCat"></span><h3 id="dTitle"></h3><span class="meta" id="dMeta"></span><p id="dDesc"></p><dl id="dInfo"></dl><a id="dLink" class="dlink" href="#" target="_blank" rel="noopener" hidden><span></span> ↗</a></div>
     <div class="dproc" id="dProc" hidden></div>
     <div class="dproc" id="dShorts" hidden></div>
@@ -512,11 +514,13 @@ function openDetail(idx){ cur = (idx + flat.length) % flat.length; const {w, g} 
   const sh = document.getElementById('dShorts'); if(w.shorts){ sh.innerHTML = '<h4>' + w.shorts.title + '<span>' + w.shorts.ids.length + '</span></h4><div class="sgrid">' + w.shorts.ids.map((id, n)=>`<figure><button type="button" class="short" data-id="${id}" aria-label="${w.shorts.names[n]} 재생"><img src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt=""><i aria-hidden="true"></i></button><figcaption><b>${w.shorts.names[n]}</b><a href="https://www.youtube.com/shorts/${id}" target="_blank" rel="noopener">YouTube ↗</a></figcaption></figure>`).join('') + '</div>'; sh.hidden = false;
     sh.querySelectorAll('.short').forEach(btn=>btn.addEventListener('click', ()=>{ const f = document.createElement('iframe'); f.src = 'https://www.youtube-nocookie.com/embed/' + btn.dataset.id + '?autoplay=1&playsinline=1&rel=0'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true; f.title = 'YouTube'; btn.replaceWith(f); Sound.duck(true); })); } else { sh.innerHTML = ''; sh.hidden = true; } Sound.duck(false);
   const dv = document.getElementById('dVid'); detail.classList.toggle('wide', !!w.wide);
-  if(w.video){ dImg.hidden = true; dv.hidden = false; dv.poster = w.img; dv.controls = !!w.controls; dv.loop = !w.controls; dv.muted = !w.controls; if(dv.getAttribute('src') !== w.video){ dv.src = w.video; } if(!w.controls) dv.play().catch(()=>{}); else dv.pause(); } else { dv.pause(); dv.hidden = true; dImg.hidden = false; }
+  const yt = !w.video && w.link && (w.link.match(/[?&]v=([\w-]{11})/) || [])[1], dy = document.getElementById('dYt');
+  if(w.video){ dImg.hidden = true; dv.hidden = false; dv.poster = w.img; dv.controls = !!w.controls; dv.loop = !w.controls; dv.muted = !w.controls; if(dv.getAttribute('src') !== w.video){ dv.src = w.video; } if(!w.controls) dv.play().catch(()=>{}); else { dv.currentTime = 0; dv.play().catch(()=>{ dv.muted = true; dv.play().catch(()=>{}); }); } } else { dv.pause(); dv.hidden = true; dImg.hidden = !!yt; }
+  if(yt){ dy.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&playsinline=1&rel=0" title="${w.t}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`; dy.hidden = false; Sound.duck(true); } else { dy.innerHTML = ''; dy.hidden = true; }
   dImg.src = w.img; dImg.alt = w.t; detail.scrollTop = 0;
   if(!detailOpen){ detail.classList.add('on'); detailOpen = true; Sound.select(listCat); setTimeout(()=>document.getElementById('dClose').focus({preventScroll:true}), 60); } else Sound.hover(cur % 6 - 1); }
-{ const dv = document.getElementById('dVid'); dv.addEventListener('play', ()=>{ if(dv.controls) Sound.duck(true); }); dv.addEventListener('pause', ()=>{ if(dv.controls && !document.querySelector('#dShorts iframe')) Sound.duck(false); }); dv.addEventListener('ended', ()=>{ if(!document.querySelector('#dShorts iframe')) Sound.duck(false); }); }
-function closeDetail(){ const dv = document.getElementById('dVid'); dv.pause(); document.getElementById('dShorts').innerHTML = ''; Sound.duck(false); detail.classList.remove('on'); detailOpen = false; Sound.back(); if(cards[cur]) cards[cur].focus({preventScroll:true}); }
+{ const dv = document.getElementById('dVid'); dv.addEventListener('play', ()=>{ if(dv.controls) Sound.duck(true); }); dv.addEventListener('pause', ()=>{ if(dv.controls && !document.querySelector('#dShorts iframe, #dYt iframe')) Sound.duck(false); }); dv.addEventListener('ended', ()=>{ if(!document.querySelector('#dShorts iframe, #dYt iframe')) Sound.duck(false); }); }
+function closeDetail(){ const dv = document.getElementById('dVid'); dv.pause(); document.getElementById('dShorts').innerHTML = ''; const dy = document.getElementById('dYt'); dy.innerHTML = ''; dy.hidden = true; Sound.duck(false); detail.classList.remove('on'); detailOpen = false; Sound.back(); if(cards[cur]) cards[cur].focus({preventScroll:true}); }
 document.getElementById('dClose').addEventListener('click', closeDetail);
 document.getElementById('dPrev').addEventListener('click', ()=>openDetail(cur - 1));
 document.getElementById('dNext').addEventListener('click', ()=>openDetail(cur + 1));
