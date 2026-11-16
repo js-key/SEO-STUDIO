@@ -628,14 +628,14 @@ if(window.THREE){
     const valley = x=>.25 + .75*ease((Math.abs(x) - 1.2)/5);
     function hf(x, z, t){ let h = 0; if(W[0] > .005) h += W[0]*catH(0, x, z, t)*valley(x); for(let c=0;c<CATS.length;c++){ const w = W[c+1]; if(w > .005) h += w*catH(CATS[c].land, x, z, t)*(.35 + .65*valley(x)); } return h + Math.abs(x)*.03; }
     /* shooting star */
-    const TRN = 30, ssPos = new Float32Array(TRN*3), ssA = new Float32Array(TRN), ssS = new Float32Array(TRN), ssG = new THREE.BufferGeometry();
+    const TRN = 40, ssPos = new Float32Array(TRN*3), ssA = new Float32Array(TRN), ssS = new Float32Array(TRN), ssG = new THREE.BufferGeometry();
     ssG.setAttribute('position', new THREE.BufferAttribute(ssPos, 3)); ssG.setAttribute('a', new THREE.BufferAttribute(ssA, 1)); ssG.setAttribute('s', new THREE.BufferAttribute(ssS, 1));
     const ssMat = new THREE.ShaderMaterial({transparent:true, depthWrite:false, uniforms:{uC:{value:C.ink.clone()}, uPx:{value:Math.min(window.devicePixelRatio || 1, 2)}},
       vertexShader:'attribute float a; attribute float s; uniform float uPx; varying float vA; void main(){ vA = a; gl_PointSize = s*uPx; gl_Position = projectionMatrix*modelViewMatrix*vec4(position, 1.); }',
       fragmentShader:'uniform vec3 uC; varying float vA; void main(){ float d = length(gl_PointCoord - .5); if(d > .5) discard; gl_FragColor = vec4(uC, vA*smoothstep(.5, .36, d)); }'});
     const ssPts = new THREE.Points(ssG, ssMat); ssPts.frustumCulled = false; scene.add(ssPts);
     const SS = {on:false, t:0, p0:new V3(), d:new V3(), dur:1.5, sp:22};
-    function spawnStar(at){ const side = Math.random() < .5 ? -1 : 1; if(at) SS.p0.copy(at); else SS.p0.set(cam.position.x + (Math.random()*50 - 25), 14 + Math.random()*12, -62 - Math.random()*10); SS.d.set(-side*(.6 + Math.random()*.4), -(.35 + Math.random()*.3), 0).normalize(); SS.dur = 1.3 + Math.random()*.6; SS.on = true; SS.t = 0; Sound.whoosh(Math.max(-1, Math.min(1, SS.p0.x/30))); }
+    function spawnStar(at){ const side = Math.random() < .5 ? -1 : 1; if(at) SS.p0.copy(at); else SS.p0.set(cam.position.x + (Math.random()*50 - 25), 14 + Math.random()*12, -62 - Math.random()*10); SS.d.set(-(.6 + Math.random()*.4), -(.35 + Math.random()*.3), 0).normalize(); SS.dur = 1.3 + Math.random()*.6; SS.on = true; SS.t = 0; Sound.whoosh(Math.max(-1, Math.min(1, SS.p0.x/30))); }
     let travel = 0, vel = .9, mx = 0, my = 0, camY = 2.5, lookY = 1.2;
     window.addEventListener('pointermove', e=>{ mx = e.clientX/window.innerWidth*2 - 1; my = e.clientY/window.innerHeight*2 - 1; });
     let sw = 0, sh = 0;
@@ -664,8 +664,8 @@ if(window.THREE){
       starsP.position.x = -cam.position.x*.2;
       if(SS.on){ SS.t += dt; const k = SS.t/SS.dur; if(k >= 1){ SS.on = false; ssA.fill(0); ssG.attributes.a.needsUpdate = true; }
         else { const env = Math.min(1, k*6)*Math.min(1, (1 - k)*3);
-          for(let i = 0; i < TRN; i++){ const tt = SS.t - i*.03, f = i/TRN; const x = SS.p0.x + SS.d.x*SS.sp*tt, y = SS.p0.y + SS.d.y*SS.sp*tt;
-            ssPos[i*3] = x; ssPos[i*3 + 1] = y; ssPos[i*3 + 2] = SS.p0.z; ssA[i] = tt < 0 ? 0 : env*(i === 0 ? 1 : .75*Math.pow(1 - f, 1.6)); ssS[i] = i === 0 ? 8 : 1.2 + 5*Math.pow(1 - f, 1.2); }
+          for(let i = 0; i < TRN; i++){ const tt = SS.t - i*.022, f = i/TRN; const x = SS.p0.x + SS.d.x*SS.sp*tt, y = SS.p0.y + SS.d.y*SS.sp*tt;
+            ssPos[i*3] = x; ssPos[i*3 + 1] = y; ssPos[i*3 + 2] = SS.p0.z; ssA[i] = tt < 0 ? 0 : env*(i === 0 ? 1 : .75*Math.pow(1 - f, 1.6)); ssS[i] = i === 0 ? 4.2 : .9 + 2.4*Math.pow(1 - f, 1.2); }
           ssG.attributes.position.needsUpdate = true; ssG.attributes.a.needsUpdate = true; ssG.attributes.s.needsUpdate = true; } }
       r.render(scene, cam); orbTick(t, dt, sw, sh);
     });
