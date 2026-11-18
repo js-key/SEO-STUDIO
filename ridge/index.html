@@ -157,7 +157,7 @@ button{font:inherit;color:inherit}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:clamp(18px,2vw,30px) clamp(14px,1.6vw,24px);padding-bottom:24px}
 .wcard{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-width:0}
 .wcard .ph{position:relative;display:block;width:100%;background:#141416;overflow:hidden;border:1px solid var(--rule);transition:border-color .3s}
-.wcard img{position:absolute;inset:0;width:100%;height:100%;display:block;filter:grayscale(1) brightness(.85);transition:filter .5s,transform .7s cubic-bezier(.2,.7,.2,1)}
+.wcard img{position:absolute;inset:0;width:100%;height:100%;display:block;transition:filter .5s,transform .7s cubic-bezier(.2,.7,.2,1)}
 .wcard em{position:absolute;right:8px;bottom:8px;font-style:normal;font-size:11px;letter-spacing:.06em;background:rgba(11,11,12,.8);padding:2px 6px}
 .wcard b{font-family:var(--f-display);font-weight:600;font-size:15px;line-height:1.35}
 .wcard .mt{font-size:12.5px;color:var(--mute)}
@@ -168,9 +168,13 @@ button{font:inherit;color:inherit}
 /* detail */
 .detail{overflow-y:auto;align-items:start;align-content:start}
 .dtop{position:absolute;top:max(18px,env(safe-area-inset-top,0px));left:var(--gl);right:var(--gr);display:flex;justify-content:space-between;align-items:center;height:40px;font-size:13px;letter-spacing:.14em;color:var(--mute)}
-.dnav{display:flex;gap:4px}
-.dnav button{all:unset;cursor:pointer;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;color:var(--paper)}
-.dnav button:hover,.dnav button:focus-visible{background:rgba(240,240,236,.08);outline:none}
+.dback{all:unset;cursor:pointer;font-family:var(--f-display);font-weight:700;font-size:13px;letter-spacing:.2em;display:flex;align-items:center;gap:10px;color:var(--mute);transition:color .2s}
+.dback:hover,.dback:focus-visible{color:var(--paper);outline:none}
+.dside{position:fixed;top:50%;transform:translateY(-50%);z-index:31;opacity:0;pointer-events:none;transition:opacity .45s}
+.detail.on~.dside,.detail.on .dside{opacity:1;pointer-events:auto}
+.dside.l{left:max(4px,calc(var(--gl)/2 - 22px))}.dside.r{right:max(4px,calc(var(--gr)/2 - 22px))}
+.dside button{all:unset;cursor:pointer;width:44px;height:44px;display:grid;place-items:center;border-radius:50%;color:var(--paper);background:rgba(11,11,12,.5)}
+.dside button:hover,.dside button:focus-visible{background:rgba(240,240,236,.1);outline:none}
 .dimg{min-width:0;display:flex;align-items:center;justify-content:center}
 .dimg img{max-width:100%;max-height:74vh;width:auto;height:auto;display:block;border:1px solid var(--rule)}
 .detail dl{display:grid;grid-template-columns:72px 1fr;gap:8px 14px;margin:6px 0 0;padding-top:16px;border-top:1px solid var(--rule);font-size:14px}
@@ -283,7 +287,7 @@ button{font:inherit;color:inherit}
   </section>
 
   <div class="detail" id="detail" role="dialog" aria-modal="true" aria-labelledby="dTitle">
-    <div class="dtop"><span id="dCount"></span><div class="dnav"><button type="button" id="dPrev" aria-label="이전 작업"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 6H2M6.5 1.5 2 6l4.5 4.5"/></svg></button><button type="button" id="dNext" aria-label="다음 작업"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 6h15M11.5 1.5 16 6l-4.5 4.5"/></svg></button><button type="button" id="dClose" aria-label="닫기"><svg width="16" height="16" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 2l12 12M14 2 2 14"/></svg></button></div></div>
+    <div class="dtop"><button type="button" id="dClose" class="dback" aria-label="목록으로 돌아가기"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 6H2M6.5 1.5 2 6l4.5 4.5"/></svg>BACK</button><span id="dCount"></span></div><div class="dside l"><button type="button" id="dPrev" aria-label="이전 작업"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M17 6H2M6.5 1.5 2 6l4.5 4.5"/></svg></button></div><div class="dside r"><button type="button" id="dNext" aria-label="다음 작업"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 6h15M11.5 1.5 16 6l-4.5 4.5"/></svg></button></div>
     <div class="dimg"><img id="dImg" alt=""><video id="dVid" muted loop playsinline preload="none" hidden></video><div id="dYt" hidden></div></div>
     <div class="info"><span class="eb" id="dCat"></span><h3 id="dTitle"></h3><span class="meta" id="dMeta"></span><p id="dDesc"></p><dl id="dInfo"></dl><a id="dLink" class="dlink" href="#" target="_blank" rel="noopener" hidden><span></span> ↗</a></div>
     <div class="dproc" id="dProc" hidden></div>
