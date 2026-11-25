@@ -613,11 +613,11 @@ if(window.THREE){
     function orbPick(x, y){ if(oVis < .3) return null; oNdc.set(x/window.innerWidth*2 - 1, -(y/window.innerHeight)*2 + 1); oRay.setFromCamera(oNdc, oCam); oSph.center.copy(orb.position); oSph.radius = 1.6*oU.uScale.value; return oRay.ray.intersectSphere(oSph, oHitP) ? oHitP.clone().sub(orb.position).normalize().applyQuaternion(orb.quaternion.clone().invert()) : null; }
     let oRot = 0, oTx = 0, oTy = 0;
     function orbTick(t, dt, w, h){
-      const want = (view === 'profile' || view === 'contacts') && w > 760 ? 1 : 0; oVis += (want - oVis)*.05; oU.uAlpha.value = oVis; oU.uScale.value = .82 + .18*ease(oVis);
+      const want = view === 'profile' && w > 760 ? 1 : 0; oVis += (want - oVis)*.05; oU.uAlpha.value = oVis; oU.uScale.value = .82 + .18*ease(oVis);
       if(oVis < .01) return;
       oCam.aspect = w/h; oCam.updateProjectionMatrix();
       const panelW = Math.min(560, w), cx = (w - panelW)/2, halfW = 7*Math.tan(17.5*Math.PI/180)*oCam.aspect; orb.position.x = (cx/w*2 - 1)*halfW; orb.position.y = -.1; oRing.position.copy(orb.position);
-      oU.uMix.value += ((view === 'contacts' ? 1 : 0) - oU.uMix.value)*.035; oU.uT.value = t; oU.uRip.value += dt;
+      oU.uMix.value += (0 - oU.uMix.value)*.035; oU.uT.value = t; oU.uRip.value += dt;
       const hit = orbPick(oX, oY); if(hit){ oU.uHit.value.lerp(hit, .25).normalize(); } oU.uHitAmt.value += ((hit ? 1 : 0) - oU.uHitAmt.value)*.1;
       if(!!hit !== oHov){ oHov = !!hit; app.style.cursor = oHov ? 'pointer' : ''; if(oHov) Sound.hover(4); }
       const nx = oX > 0 ? (oX/w*2 - 1) : 0, ny = oY > 0 ? (oY/h*2 - 1) : 0; oTx += (ny*.35 - oTx)*.04; oTy += (nx*.5 - oTy)*.04;
