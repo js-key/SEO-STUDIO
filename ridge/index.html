@@ -204,6 +204,17 @@ button{font:inherit;color:inherit}
 .detail.wide .info{max-width:760px}
 [hidden]{display:none!important}
 #dDesc{white-space:pre-line}
+.hint{position:absolute;right:var(--gr);bottom:max(28px,env(safe-area-inset-bottom,0px));z-index:3;display:flex;align-items:flex-end;gap:14px;color:var(--paper)}
+.hleg{margin:0;padding:10px 14px;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:12px;letter-spacing:.04em;color:#CFCFCA;border:1px solid var(--rule);background:rgba(6,6,7,.75);white-space:nowrap;opacity:0;transform:translateX(8px);transition:opacity .35s,transform .35s;pointer-events:none}
+.hint:hover .hleg,.hint:focus-within .hleg,.hint.peek .hleg{opacity:1;transform:none}
+.hbtn{all:unset;cursor:pointer;display:block;line-height:0}
+.hbtn:focus-visible{outline:1px solid var(--paper);outline-offset:4px}
+.hbtn .mb{fill:none;stroke:currentColor;stroke-width:1.2}
+.hbtn .mw{fill:currentColor}
+.hbtn .ring{fill:none;stroke:currentColor;stroke-width:.8;transform-origin:11px 17px;animation:hring 2.6s ease-out infinite}
+@keyframes hring{0%{transform:scale(.9);opacity:.6}100%{transform:scale(1.9);opacity:0}}
+@media (hover:none){.hint{display:none}}
+@media (prefers-reduced-motion:reduce){.hbtn .ring{animation:none;opacity:0}}
 #dInfo dd{white-space:pre-line}
 #dCat[hidden]{display:none}
 .sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr));gap:clamp(14px,1.6vw,24px)}
@@ -233,6 +244,8 @@ button{font:inherit;color:inherit}
 
   <section class="view on" data-view="home" aria-label="홈">
     <div class="ttl"><span class="nm">HA JUNG-SEO</span><h1>PORTFOLIO</h1></div>
+    <div class="hint" id="hint"><ul class="hleg" id="hleg"><li>휠</li><li>능선 클릭</li><li>하늘 클릭</li></ul>
+      <button type="button" class="hbtn" aria-label="메인 화면 사용법: 휠, 능선 클릭, 하늘 클릭" aria-describedby="hleg"><svg width="22" height="34" viewBox="0 0 22 34" overflow="visible" aria-hidden="true"><rect class="ring" x="0" y="0" width="22" height="34" rx="11"/><rect class="mb" x=".6" y=".6" width="20.8" height="32.8" rx="10.4"/><rect class="mw" x="9.8" y="6" width="2.4" height="5" rx="1.2"/></svg></button></div>
     <nav class="menu" id="menu" aria-label="메인 메뉴">
       <button type="button" data-go="profile">PROFILE</button>
       <button type="button" data-go="works">WORKS</button>
@@ -477,6 +490,7 @@ const views = {}; document.querySelectorAll('.view').forEach(v=>views[v.dataset.
 let view = 'home', homeSel = 0, catSel = -1, listCat = 0, detailOpen = false;
 const menuBtns = [...document.querySelectorAll('#menu button')];
 function setHome(i, sound){ homeSel = (i + menuBtns.length) % menuBtns.length; menuBtns.forEach((b,j)=>b.classList.toggle('on', j === homeSel)); if(sound) Sound.hover(homeSel); }
+{ const hint = document.getElementById('hint'); setTimeout(()=>{ if(view === 'home'){ hint.classList.add('peek'); setTimeout(()=>hint.classList.remove('peek'), 3000); } }, 1200); }
 function go(v, opts){
   if(v === view) return; const prev = view; view = v; app.dataset.view = v;
   Object.entries(views).forEach(([k, el])=>el.classList.toggle('on', k === v));
